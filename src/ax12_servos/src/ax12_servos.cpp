@@ -29,6 +29,18 @@ void callback(const std_msgs::Float64::ConstPtr& msg, int servoId, bool isRevers
   ax12SetRegister(servoId, AX_GOAL_POSITION_L, posInt, 2);
 }
 
+
+void callback_allJointsPosAndSpeed(const std_msgs::UInt8MultiArray::ConstPtr& msg)
+{
+  ROS_INFO("I heard: callback_allJointsPosAndSpeed");//servoId=%d [%f]", servoId, msg->data);
+
+  int num_servos = msg.layout.dim[0].size / 5;
+  const uint8_t *servoIds = &msg.data[0];
+  uint8_t *bVals = &msg.data[num_servos];
+  ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals, servoIds, num_servos);
+}
+
+
 int main(int argc, char **argv)
 {
   ax12Init(1000000);
@@ -65,6 +77,7 @@ vector<string> servoId2jointName;
       joint_channels.push_back( n.subscribe<std_msgs::Float64>(jointName, 10, boost::bind(&callback, _1, servoId, isReverse)) );
     }
 
+    ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed))
 
   ros::spin();
 

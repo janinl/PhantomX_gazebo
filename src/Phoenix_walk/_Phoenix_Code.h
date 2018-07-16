@@ -827,9 +827,15 @@ void setup(){
 // Loop: the main arduino main Loop function
 //=============================================================================
 
+bool webbie1_loop()
+{
+  return true;
+}
 
 bool loop(void)
 {
+//  return webbie1_loop();
+
   //Start time
   unsigned long lTimeWaitEnd;
   lTimerStart = millis(); 

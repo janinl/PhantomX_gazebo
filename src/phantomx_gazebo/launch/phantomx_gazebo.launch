@@ -14,9 +14,9 @@
  
  <include file="$(find phantomx_control)/launch/phantomx_control.launch"/> 
 
-
-  <node name="phantomx_walker" pkg="phantomx_gazebo" type="walker.py" />
-
+<!--
+//  <node name="phantomx_walker" pkg="phantomx_gazebo" type="walker.py" />
+-->
 
 
 </launch>

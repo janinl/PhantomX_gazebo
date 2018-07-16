@@ -383,6 +383,7 @@ void ax12SetRegister(int servoId, int regstart, int data, int length) {
 #include <ros/ros.h>
 #include "std_msgs/Float64.h"
 #include "std_msgs/String.h"
+#include "std_msgs/UInt8MultiArray.h"
 #include "sensor_msgs/JointState.h"
 
 //sensor_msgs::JointState lastJointState;
@@ -402,12 +403,14 @@ public:
   ros::NodeHandle n;
   //ros::Publisher chatter_pub;
   vector<ros::Publisher> joint_channels;
+  ros::Publisher allJointsPosAndSpeed;
   vector<string> servoId2jointName;
   ros::Subscriber jointStateSub;
   //ros::Rate loop_rate(10);
 
   MyRosClass()
     : n()
+    , allJointsPosAndSpeed(n.advertise<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 1))
     , jointStateSub( n.subscribe("/phantomx/joint_states", 1, jointStateCallback) )
   {
     servoId2jointName.resize(18+1);
@@ -521,6 +524,47 @@ void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals
 	msg2.data = posRad;
 	myRos->joint_channels[servoId].publish(msg2);
       }
+      ros::spinOnce();
+
+      //loop_rate.sleep();
+    }
+
+    else if (startAddr==AX_GOAL_POSITION_L && length==4) {
+      std_msgs::UInt8MultiArray msg;
+
+      // set up dimensions
+      msg.layout.dim.push_back(std_msgs::MultiArrayDimension());
+      msg.layout.dim[0].size = NUM_SERVOS*5;//vec1.size();
+      msg.layout.dim[0].stride = 1;
+      msg.layout.dim[0].label = "x"; // or whatever name you typically use to index vec1
+
+      // copy in the data
+      //msg.data.clear();
+      //msg.data.insert(msg.data.end(), vec1.begin(), vec1.end());
+      for (unsigned int i=0; i<NUM_SERVOS; ++i) {
+        msg.data.push_back(servoIds[i]);
+      }
+      for (unsigned int i=0; i<NUM_SERVOS; ++i) {
+        msg.data.push_back(bVals[4*i+0]);
+        msg.data.push_back(bVals[4*i+1]);
+        msg.data.push_back(bVals[4*i+2]);
+        msg.data.push_back(bVals[4*i+3]);
+      }
+/*
+      for (unsigned int i=0; i<NUM_SERVOS; ++i) {
+        uint8_t servoId = servoIds[i];
+
+        int posInt = bVals[4*i] + ( bVals[4*i+1] << 8 );
+        int speedInt = bVals[4*i+2] + ( bVals[4*i+3] << 8 );
+        // Convert pos from ax12 units (0-1023 for -150deg to +150deg) to gazebo units (radians)
+        const double PI = 3.14159265359;
+        double posRad = (posInt-512)*(PI*150.0/180.0/512.0);
+
+        msg2.data = posRad;
+        myRos->joint_channels[servoId].publish(msg2);
+      }
+*/
+      myRos->allJointsPosAndSpeed.publish(msg);
       ros::spinOnce();
 
       //loop_rate.sleep();

@@ -222,7 +222,7 @@ void ServoDriver::Init(void) {
 #endif
 
   g_fAXSpeedControl = false;
-  //g_fAXSpeedControl = true; //testLJ
+  g_fAXSpeedControl = true; //testLJ
 
 #ifdef OPT_GPPLAYER
   _fGPEnabled = true;    // assume we support it.
@@ -680,6 +680,9 @@ void ServoDriver::CommitServoDriver(word wMoveTime)
   if (ServosEnabled) {
     if (g_fAXSpeedControl) {
 #ifdef USE_AX12_SPEED_CONTROL
+  uint8_t valArray[100];
+  if (4*NUMSERVOS>100) { std::cout << "Error: static valArray is too small" << std::endl; exit(1); }
+
       // Need to first output the header for the Sync Write
       int length = 4 + (NUMSERVOS * 5);   // 5 = id + pos(2byte) + speed(2 bytes)
       int checksum = 254 + length + AX_SYNC_WRITE + 4 + AX_GOAL_POSITION_L;
@@ -702,9 +705,15 @@ void ServoDriver::CommitServoDriver(word wMoveTime)
         ax12write(wSpeed & 0xff);
         ax12write(wSpeed >> 8);
 
+        valArray[4*i] = g_awGoalAXPos[i] & 0xff;
+        valArray[4*i+1] = g_awGoalAXPos[i] >> 8;
+        valArray[4*i+2] = wSpeed & 0xff;
+        valArray[4*i+3] = wSpeed >> 8;
       }
       ax12write(0xff - (checksum % 256));
       setRX(0);
+
+      ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, valArray, cPinTable, NUMSERVOS);
 
 #endif
     }
