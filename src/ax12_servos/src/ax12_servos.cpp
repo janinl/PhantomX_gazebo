@@ -2,8 +2,8 @@
 #include "ros/ros.h"
 #include "std_msgs/Float64.h"
 
-#include "../../Phantom_Phoenix/mytypes.h"
-#include "../../Phantom_Phoenix/Hex_Cfg.h"
+#include "../../Phoenix_walk/mytypes.h"
+#include "../../Phoenix_walk/Hex_Cfg.h"
 
 
 void callback(const std_msgs::Float64::ConstPtr& msg, int servoId, bool isReverse)
