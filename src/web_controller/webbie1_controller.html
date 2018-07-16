@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <script src="https://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/roslibjs/0.20.0/roslib.js"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+
+  <script>
+    // Connecting to ROS
+    // -----------------
+    var ros = new ROSLIB.Ros();
+
+    // If there is an error on the backend, an 'error' emit will be emitted.
+    ros.on('error', function (error) {
+      document.getElementById('connecting').style.display = 'none';
+      document.getElementById('connected').style.display = 'none';
+      document.getElementById('closed').style.display = 'none';
+      document.getElementById('error').style.display = 'inline';
+      console.log(error);
+    });
+
+    // Find out exactly when we made a connection.
+    ros.on('connection', function () {
+      console.log('Connection made!');
+      document.getElementById('connecting').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('closed').style.display = 'none';
+      document.getElementById('connected').style.display = 'inline';
+    });
+
+    ros.on('close', function () {
+      console.log('Connection closed.');
+      document.getElementById('connecting').style.display = 'none';
+      document.getElementById('connected').style.display = 'none';
+      document.getElementById('closed').style.display = 'inline';
+    });
+
+    // Create a connection to the rosbridge WebSocket server.
+    ros.connect('ws://192.168.1.107:9090');
+
+    // Publishing a Topic
+    // ------------------
+
+    // First, we create a Topic object with details of the topic's name and message type.
+    var cmdVel = new ROSLIB.Topic({
+      ros: ros,
+      name: '/cmd_vel',
+      messageType: 'geometry_msgs/Twist'
+    });
+
+    // Then we create the payload to be published. The object we pass in to ros.Message matches the
+    // fields defined in the geometry_msgs/Twist.msg definition.
+    var twist = new ROSLIB.Message({
+      linear: {
+        x: 0.1,
+        y: 0.2,
+        z: 0.3
+      },
+      angular: {
+        x: -0.1,
+        y: -0.2,
+        z: -0.3
+      }
+    });
+
+    // And finally, publish.
+    cmdVel.publish(twist);
+
+    //Subscribing to a Topic
+    //----------------------
+
+    // Like when publishing a topic, we first create a Topic object with details of the topic's name
+    // and message type. Note that we can call publish or subscribe on the same topic object.
+    var listener = new ROSLIB.Topic({
+      ros: ros,
+      name: '/listener',
+      messageType: 'std_msgs/String'
+    });
+
+    // Then we add a callback to be called every time a message is published on this topic.
+    listener.subscribe(function (message) {
+      console.log('Received message on ' + listener.name + ': ' + message.data);
+
+      // If desired, we can unsubscribe from the topic as well.
+      listener.unsubscribe();
+    });
+
+    // Calling a service
+    // -----------------
+
+    // First, we create a Service client with details of the service's name and service type.
+    var addTwoIntsClient = new ROSLIB.Service({
+      ros: ros,
+      name: '/add_two_ints',
+      serviceType: 'rospy_tutorials/AddTwoInts'
+    });
+
+    // Then we create a Service Request. The object we pass in to ROSLIB.ServiceRequest matches the
+    // fields defined in the rospy_tutorials AddTwoInts.srv file.
+    var request = new ROSLIB.ServiceRequest({
+      a: 1,
+      b: 2
+    });
+
+    // Finally, we call the /add_two_ints service and get back the results in the callback. The result
+    // is a ROSLIB.ServiceResponse object.
+    addTwoIntsClient.callService(request, function (result) {
+      console.log('Result for service call on ' + addTwoIntsClient.name + ': ' + result.sum);
+    });
+
+    // Advertising a Service
+    // ---------------------
+
+    // The Service object does double duty for both calling and advertising services
+    var setBoolServer = new ROSLIB.Service({
+      ros: ros,
+      name: '/set_bool',
+      serviceType: 'std_srvs/SetBool'
+    });
+
+    // Use the advertise() method to indicate that we want to provide this service
+    setBoolServer.advertise(function (request, response) {
+      console.log('Received service request on ' + setBoolServer.name + ': ' + request.data);
+      response['success'] = true;
+      response['message'] = 'Set successfully';
+      return true;
+    });
+
+    // Setting a param value
+    // ---------------------
+
+    ros.getParams(function (params) {
+      console.log(params);
+    });
+
+    // First, we create a Param object with the name of the param.
+    var maxVelX = new ROSLIB.Param({
+      ros: ros,
+      name: 'max_vel_y'
+    });
+
+    //Then we set the value of the param, which is sent to the ROS Parameter Server.
+    maxVelX.set(0.8);
+    maxVelX.get(function (value) {
+      console.log('MAX VAL: ' + value);
+    });
+
+    // Getting a param value
+    // ---------------------
+
+    var favoriteColor = new ROSLIB.Param({
+      ros: ros,
+      name: 'favorite_color'
+    });
+
+    favoriteColor.set('red');
+    favoriteColor.get(function (value) {
+      console.log('My robot\'s favorite color is ' + value);
+    });
+
+
+  </script>
+</head>
+
+<body>
+  <h1>Simple roslib Example</h1>
+  <p>Run the following commands in the terminal then refresh this page. Check the JavaScript console for the output.</p>
+  <ol>
+    <li>
+      <tt>roscore</tt>
+    </li>
+    <li>
+      <tt>rostopic pub /listener std_msgs/String "Hello, World"</tt>
+    </li>
+    <li>
+      <tt>rostopic echo /cmd_vel</tt>
+    </li>
+    <li>
+      <tt>rosrun rospy_tutorials add_two_ints_server</tt>
+    </li>
+    <li>
+      <tt>roslaunch rosbridge_server rosbridge_websocket.launch</tt>
+    </li>
+  </ol>
+  <div id="statusIndicator">
+    <p id="connecting">
+      Connecting to rosbridge...
+    </p>
+    <p id="connected" style="color:#00D600; display:none">
+      Connected
+    </p>
+    <p id="error" style="color:#FF0000; display:none">
+      Error in the backend!
+    </p>
+    <p id="closed" style="display:none">
+      Connection closed.
+    </p>
+  </div>
+  <div id="slidecontainer">
+  </div>
+
+
+  <script>
+    // self executing function here
+    (function () {
+
+      var ROStopics = {};
+
+      var jointNames = [
+        "c1_rr",
+        "thigh_rr",
+        "tibia_rr",
+        "c1_rm",
+        "thigh_rm",
+        "tibia_rm",
+        "c1_rf",
+        "thigh_rf",
+        "tibia_rf",
+        "c1_lr",
+        "thigh_lr",
+        "tibia_lr",
+        "c1_lm",
+        "thigh_lm",
+        "tibia_lm",
+        "c1_lf",
+        "thigh_lf",
+        "tibia_lf"
+      ];
+
+      for (jointName of jointNames) {
+        var slider = document.createElement("input");
+        slider.type = "range";
+        slider.className = "slider"; // set the CSS class
+        slider.min = -261; // 150 deg in 100th of radians
+        slider.max = 261;
+        slider.value = 0;
+        slider.id = "slider_" + jointName;
+
+        var sliderValue = document.createElement("span");
+        sliderValue.id = "value_slider_" + jointName;
+        sliderValue.innerHTML = slider.value / 100;
+
+        $('#slidecontainer').append('<br/>');
+        $('#slidecontainer').append(slider);
+        $('#slidecontainer').append('<span>' + jointName + '=</span>');
+        $('#slidecontainer').append(sliderValue);
+
+
+        //  var slider = document.getElementById("myRange");
+        //  var sliderValue = document.getElementById("sliderValue");
+        //  sliderValue.innerHTML = slider.value; // Display the default slider value
+
+        ROStopics[slider.id] = new ROSLIB.Topic({
+          ros: ros,
+          name: '/phantomx/j_' + jointName + '_position_controller/command',
+          messageType: 'std_msgs/Float64'
+        });
+
+
+
+        // Update the current slider value (each time you drag the slider handle)
+        slider.oninput = function (event) {
+          var sliderValue = $('#value_' + this.id);
+          sliderValue.html(this.value);
+
+          var data = new ROSLIB.Message({
+            data: this.value * 0.01
+          });
+
+          var ROStopic = ROStopics[this.id];
+          ROStopic.publish(data);
+        }
+      }
+
+    })();
+  </script>
+
+
+</body>
+
+</html>
