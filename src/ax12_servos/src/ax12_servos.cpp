@@ -1,6 +1,7 @@
 #include "ax12Serial.cpp"
 #include "ros/ros.h"
 #include "std_msgs/Float64.h"
+#include "std_msgs/UInt8MultiArray.h"
 
 #include "../../Phoenix_walk/mytypes.h"
 #include "../../Phoenix_walk/Hex_Cfg.h"
@@ -34,10 +35,17 @@ void callback_allJointsPosAndSpeed(const std_msgs::UInt8MultiArray::ConstPtr& ms
 {
   ROS_INFO("I heard: callback_allJointsPosAndSpeed");//servoId=%d [%f]", servoId, msg->data);
 
-  int num_servos = msg.layout.dim[0].size / 5;
-  const uint8_t *servoIds = &msg.data[0];
-  uint8_t *bVals = &msg.data[num_servos];
-  ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals, servoIds, num_servos);
+  int num_servos = msg->layout.dim[0].size / 5;
+  const uint8_t *servoIds = &msg->data[0];
+  const uint8_t *bVals = &msg->data[num_servos];
+
+  // convert const uint8[] to non-const uint8[]
+  uint8_t bVals2[100];
+  if (num_servos*4 > 100) { cout << "ERROR: static array too small" << endl; exit(1); }
+  for (int i=0; i<num_servos*4; ++i)
+    bVals2[i] = bVals[i];
+
+  ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
 }
 
 
@@ -77,7 +85,7 @@ vector<string> servoId2jointName;
       joint_channels.push_back( n.subscribe<std_msgs::Float64>(jointName, 10, boost::bind(&callback, _1, servoId, isReverse)) );
     }
 
-    ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed))
+    ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
 
   ros::spin();
 
