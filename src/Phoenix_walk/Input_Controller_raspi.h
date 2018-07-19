@@ -100,7 +100,7 @@ private:
 };
 
 Commander command = Commander();
-static short   g_BodyYOffset = 0; 
+static short   g_BodyYOffset = 100; 
 static short   g_BodyYShift = 0;
 static byte    ControlMode = 0;
 static byte    HeightSpeedMode = 0;
@@ -214,10 +214,14 @@ activated=false;
     }
 
     if (cmd.substr(0,7) == "HEIGHT=") {
-      g_BodyYOffset = stoi(cmd.substr(7));
+      g_BodyYOffset = stoi(cmd.substr(7)); // default is 35, good is 100
       cout << "Setting height to " << g_BodyYOffset << endl;
     }
 
+    if (cmd.substr(0,11) == "LEG_HEIGHT=") {
+      g_InControlState.LegLiftHeight = stoi(cmd.substr(11)); // default are 50 and 80, good is 80-100
+      cout << "Setting leg height to " << g_InControlState.LegLiftHeight << endl;
+    }
 
 
     // We received another command than our owns => activate walking
@@ -275,7 +279,7 @@ activated=false;
       if (g_BodyYOffset>0) 
         g_BodyYOffset = 0;
       else
-        g_BodyYOffset = 35;
+        g_BodyYOffset = 100; // LJ:was 35
       fAdjustLegPositions = true;
       g_fDynamicLegXZLength = false;
     }
