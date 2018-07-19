@@ -213,6 +213,13 @@ activated=false;
       return;
     }
 
+    if (cmd.substr(0,7) == "HEIGHT=") {
+      g_BodyYOffset = stoi(cmd.substr(7));
+      cout << "Setting height to " << g_BodyYOffset << endl;
+    }
+
+
+
     // We received another command than our owns => activate walking
     activated = true;
   }

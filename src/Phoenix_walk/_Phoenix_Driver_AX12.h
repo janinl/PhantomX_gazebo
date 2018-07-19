@@ -610,13 +610,14 @@ word CalculateAX12MoveSpeed(word wCurPos, word wGoalPos, word wTime)
   // now we can calculate the desired moving speed
   // for 59pm the factor is 847.46 which we round to 848
   // we need to use a temporary 32bit integer to prevent overflow
-  factor = (uint32_t) 848 * wTravel;
+  factor = (uint32_t) 500 * wTravel;
 
   wSpeed = (uint16_t) ( factor / wTime );
   // if the desired speed exceeds the maximum, we need to adjust
   if (wSpeed > 1023) wSpeed = 1023;
   // we also use a minimum speed of 26 (5% of 530 the max value for 59RPM)
-  if (wSpeed < 26) wSpeed = 26;
+//  if (wSpeed < 26) wSpeed = 26;
+  if (wSpeed < 1) wSpeed = 1;
 
   return wSpeed;
 }
