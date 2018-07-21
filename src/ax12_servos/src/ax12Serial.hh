@@ -151,7 +151,7 @@ void ax12write(unsigned char *pdata, int length);
 void ax12writeB(unsigned char data);
 
 int ax12ReadPacket(int length);
-int ax12GetRegister(int id, int regstart, int length);
+int ax12GetRegister(int id, int regstart, int length, uint32_t *outErr = 0, uint8_t *outVal = 0);
 void ax12SetRegister(int id, int regstart, int data, int length=1);
 int ax12GetLastError();
 
@@ -177,6 +177,10 @@ extern unsigned char dynamixel_bus_config[AX12_MAX_SERVOS];
 #define GetObstacles(id) (ax12GetRegister(id, OBSTACLE_DETECTION))
 
 #define PlayTone(id, note) (ax12SetRegister(id, AX_BUZZER_INDEX, note))
+
+
+void ax12Get18ServosData();
+
 
 #endif
 

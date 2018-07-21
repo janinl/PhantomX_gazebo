@@ -227,18 +227,19 @@ void ax12Finish()
 }
 
 
-int ax12GetRegister(int servoId, int regstart, int length) { 
+int ax12GetRegister(int servoId, int regstart, int length, uint32_t *outErr, uint8_t *outVal) { 
  cout << "ax12GetRegister servoId=" << servoId << " regstart=" << getAx12RegWithName(regstart) << " length=" << length << endl;
 
  int retries = 0;
  int val;
 
+  int dxl_comm_result;
+  uint8_t dxl_error;
+
+
  for (;;) {
   if (retries == 5) { cout << "Aborting" << endl; exit(1); }
   if (retries++ > 0) { cout << "Retrying" << endl; }
-
-  int dxl_comm_result;
-  uint8_t dxl_error;
 
   switch (length) {
    case 1:
@@ -257,7 +258,10 @@ int ax12GetRegister(int servoId, int regstart, int length) {
     break;
    default:
     cout << "TODO: length>2" << endl;
-    exit(1);
+    {
+      dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, outVal, &dxl_error);
+    }
+    break;
   }
   if (dxl_comm_result != COMM_SUCCESS)
   {
@@ -275,9 +279,55 @@ int ax12GetRegister(int servoId, int regstart, int length) {
     break;
  }
  printf(" => [ID:%03d] %03d:%03d\n", servoId, regstart, val);
+
+ if (outErr)
+  *outErr = (dxl_comm_result << 8) | dxl_error;
+
  return val;
 }
 
+void ax12Get18ServosData()
+{
+ uint8_t regstart = AX_PRESENT_POSITION_L;
+ uint8_t length = 6;
+
+ for (int servoId=1; servoId<=2/*18*/; ++servoId) {
+
+ cout << "ax12Get18ServosData servoId=" << servoId << " length=" << (int)length << endl;
+
+ int retries = 0;
+ int val;
+
+ for (;;) {
+  if (retries == 5) { cout << "Aborting" << endl; exit(1); }
+  if (retries++ > 0) { cout << "Retrying" << endl; }
+
+  int dxl_comm_result;
+  uint8_t dxl_error;
+
+      uint8_t val3[100];
+      dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, val3, &dxl_error);
+      //dxl_comm_result = packetHandler->readTx(portHandler, servoId, regstart, length);
+      //dxl_comm_result = packetHandler->readRx(portHandler, servoId, length, val3, &dxl_error);
+      val = val3[0];
+  
+  if (dxl_comm_result != COMM_SUCCESS)
+  {
+    printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
+    //val = (1<<(length*8))-1; // 255 or 65535
+    continue; // retry
+  }
+  else if (dxl_error != 0)
+  {
+    printf("%s\n", packetHandler->getRxPacketError(dxl_error));
+    //val = (1<<(length*8))-1; // 255 or 65535
+    continue; // retry
+  }
+    break;
+ }
+ printf(" => [ID:%03d] %03d:%03d\n", servoId, regstart, val);
+}
+}
 
 void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals[], const uint8_t servoIds[], unsigned int NUM_SERVOS)
 {
