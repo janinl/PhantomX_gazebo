@@ -3,6 +3,7 @@
 #include "std_msgs/Float64.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include "std_msgs/Int16MultiArray.h"
+#include <signal.h>
 
 #include "../../Phoenix_walk/mytypes.h"
 #include "../../Phoenix_walk/Hex_Cfg.h"
@@ -98,9 +99,19 @@ long unsigned int millis() {
 }
 
 
+bool CtrlCPressed = false;
+void signalHandler(int sig)
+{
+  cout << "Ctrl+C detected" << endl;
+  CtrlCPressed = true;
+  sleep(1);
+}
+
 int main(int argc, char **argv)
 {
   ax12Init(1000000);
+
+  signal(SIGINT, signalHandler);
 
 //#define SPEED_TEST
 #ifdef SPEED_TEST
@@ -116,6 +127,7 @@ int main(int argc, char **argv)
       ax12GetRegister(servoId,AX_PRESENT_POSITION_L,8);
     }
 */
+    ax12Get18ServosData();
 
     if (currentTime >= lastTime+10000) {
       cout << " *** Times per second: " << count*0.1 << endl;
@@ -125,6 +137,16 @@ int main(int argc, char **argv)
     }
   }
 #endif
+
+  // Reset servo positions
+  int betterServoOrder[18] = {3,4,9,10,15,16, 5,6,11,12,17,18, 1,2,7,8,13,14};
+  for (int i=0; i<18; ++i) {
+    int servoId = betterServoOrder[i];
+    ax12SetRegister(servoId,AX_GOAL_POSITION_L,512,2);
+    if (i==5 || i==11)
+      sleep(1);
+  }
+
 
   ros::init(argc, argv, "ax12_servos");
   ros::NodeHandle n;
@@ -164,7 +186,7 @@ vector<string> servoId2jointName;
 
     ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
 
-  while (ros::ok()) {
+  while (ros::ok() && !CtrlCPressed) {
     ros::spinOnce();
     getAndPublishNextOf18ServosData();
   }
