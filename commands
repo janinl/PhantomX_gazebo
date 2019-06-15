@@ -1,6 +1,6 @@
 UBUNTU:
 
-catkin_make --only-pkg-with-deps phantomx_gazebo
+catkin_make --only-pkg-with-deps phantomx_gazebo all_joints_to_state_publisher
 
 
 
