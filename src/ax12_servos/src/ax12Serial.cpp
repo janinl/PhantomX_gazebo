@@ -173,7 +173,6 @@ void ax12Init(long baud)
   }
   usleep(500000);
 
-
     // Read all servo positions
     for (int servoId=1; servoId<=18; servoId++)
     {
@@ -198,7 +197,7 @@ void ax12Init(long baud)
     #define ADDR_LED 25
     #define ADDR_TORQUE_LIMIT 34
     ax12SetRegister( servoId, ADDR_LED, 1 );
-    ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 200, 2 );
+    ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
     ax12SetRegister( servoId, ADDR_TORQUE_LIMIT, 900, 2 );
   }
   void setAllPunch(int val);
@@ -218,6 +217,12 @@ void setAllPunch(int val)
 void ax12Finish()
 {
   std::cout << "ax12Finish - closing ax12 port" << std::endl;
+
+  if (portHandler==0) return;
+
+  // Torque off
+  uint8_t servoIds[18] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+  ax12GroupSyncWrite(AX_TORQUE_ENABLE, 0, servoIds, 18);
 
   // Close port
   portHandler->closePort();
@@ -291,7 +296,7 @@ void ax12Get18ServosData()
  uint8_t regstart = AX_PRESENT_POSITION_L;
  uint8_t length = 6;
 
- for (int servoId=1; servoId<=2/*18*/; ++servoId) {
+ for (int servoId=1; servoId<=18; ++servoId) {
 
  cout << "ax12Get18ServosData servoId=" << servoId << " length=" << (int)length << endl;
 
