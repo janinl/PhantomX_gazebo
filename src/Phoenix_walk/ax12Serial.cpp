@@ -509,10 +509,10 @@ void ax12GroupSyncWrite(uint8_t bReg, uint8_t bVal, const uint8_t cPinTable[], u
 
 void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals[], const uint8_t servoIds[], unsigned int NUM_SERVOS) {
   cout << "ax12GroupSyncWriteDetailed" << endl;
+  std_msgs::Float64 msg2;
 
   if (ros::ok()) {
     if (startAddr==AX_GOAL_POSITION_L && length==2) {
-      std_msgs::Float64 msg2;
       for (unsigned int i=0; i<NUM_SERVOS; ++i) {
 	uint8_t servoId = servoIds[i];
 
@@ -550,7 +550,9 @@ void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals
         msg.data.push_back(bVals[4*i+2]);
         msg.data.push_back(bVals[4*i+3]);
       }
-/*
+
+#define SEND_GAZEBO_ACTIONS
+#ifdef SEND_GAZEBO_ACTIONS
       for (unsigned int i=0; i<NUM_SERVOS; ++i) {
         uint8_t servoId = servoIds[i];
 
@@ -563,7 +565,8 @@ void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals
         msg2.data = posRad;
         myRos->joint_channels[servoId].publish(msg2);
       }
-*/
+#endif //ifdef SEND_GAZEBO_ACTIONS
+
       myRos->allJointsPosAndSpeed.publish(msg);
       ros::spinOnce();
 

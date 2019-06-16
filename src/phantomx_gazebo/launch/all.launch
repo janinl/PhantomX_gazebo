@@ -1,0 +1,52 @@
+<launch>
+
+<!--
+//  <node name="phantomx_walker" pkg="phantomx_gazebo" type="walker.py" />
+-->
+
+<!--
+  // Gazebo stuff
+-->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="worlds/empty.world"/>
+    <arg name="paused" value="false"/>
+  </include>
+  
+  <param name="robot_description" textfile="$(find phantomx_description)/urdf/phantomx.urdf" />  
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find phantomx_description)/urdf/phantomx.urdf -urdf -model phantomx -z 0.2" />
+
+<!--
+  // More Gazebo stuff
+  //  was: <include file="$(find phantomx_control)/launch/phantomx_control.launch"/> 
+-->
+  <rosparam file="$(find phantomx_control)/config/phantomx_control.yaml" command="load"/>
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/phantomx" args=" j_c1_lf_position_controller j_c1_rf_position_controller j_c1_lm_position_controller j_c1_rm_position_controller j_c1_lr_position_controller j_c1_rr_position_controller j_thigh_lf_position_controller j_thigh_rf_position_controller j_thigh_lm_position_controller j_thigh_rm_position_controller j_thigh_lr_position_controller j_thigh_rr_position_controller j_tibia_lf_position_controller j_tibia_rf_position_controller j_tibia_lm_position_controller j_tibia_rm_position_controller j_tibia_lr_position_controller j_tibia_rr_position_controller joint_state_controller"/>
+
+
+    
+  <!-- rviz -->
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find viz)/config.rviz" />
+
+  <param name="use_gui" value="$(arg gui)"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" output="screen" />
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" >
+    <remap from="/joint_states" to="/phantomx/joint_states" />
+  </node>
+<!--
+  // The above publisher is making rviz show the simulated/real position
+  // Use the publisher below instead to rviz the position we send to the robot
+  <node name="all_joints_to_state_publisher_node" pkg="all_joints_to_state_publisher" type="all_joints_to_state_publisher_node" output="screen" />
+  <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" >
+    <remap from="/tf" to="/commanded/tf" />
+  </node>
+  <node name="rviz2" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="false" output="screen" >
+    <remap from="/tf" to="/commanded/tf" />
+  </node>
+-->
+
+</launch>
+
