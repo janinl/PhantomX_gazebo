@@ -1,5 +1,9 @@
 #include "ros_cfg.h"
 
+#include "mytypes.h"
+#include "ax12Serial.hh"
+#include "_Phoenix.h"
+
 #include "ax12Serial.hh"
 #include <iostream>
 
@@ -398,6 +402,13 @@ void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
   //  ROS_INFO("I heard: [%s]", msg->data.c_str());
 }
 
+void cmdAbsSpeedCallback(const std_msgs::Float64::ConstPtr& msg)
+{
+  std::cout << "cmdAbsSpeedCallback" << std::endl;
+  g_InControlState.SpeedControl = msg->data;
+  cout << "Setting speed to " << g_InControlState.SpeedControl << endl;
+}
+
 class MyRosClass {
 public:
   ros::NodeHandle n;
@@ -406,12 +417,14 @@ public:
   ros::Publisher allJointsPosAndSpeed;
   vector<string> servoId2jointName;
   ros::Subscriber jointStateSub;
+  ros::Subscriber cmdAbsSpeedSub;
   //ros::Rate loop_rate(10);
 
   MyRosClass()
     : n()
     , allJointsPosAndSpeed(n.advertise<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 1))
     , jointStateSub( n.subscribe("/phantomx/joint_states", 1, jointStateCallback) )
+    , cmdAbsSpeedSub( n.subscribe("/webbie1/cmd_abs_speed", 1, cmdAbsSpeedCallback) )
   {
     servoId2jointName.resize(18+1);
     servoId2jointName[cRRCoxaPin] = "c1_rr";
