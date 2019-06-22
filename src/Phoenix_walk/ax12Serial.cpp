@@ -1,6 +1,7 @@
 #include "ros_cfg.h"
 
 #include "mytypes.h"
+#include "Hex_Cfg.h"
 #include "ax12Serial.hh"
 #include "_Phoenix.h"
 
@@ -402,11 +403,16 @@ void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
   //  ROS_INFO("I heard: [%s]", msg->data.c_str());
 }
 
+extern string commandFromRosTopic;
 void cmdAbsSpeedCallback(const std_msgs::Float64::ConstPtr& msg)
 {
   std::cout << "cmdAbsSpeedCallback" << std::endl;
-  g_InControlState.SpeedControl = msg->data;
+  g_InControlState.SpeedControl = 2000/msg->data;
   cout << "Setting speed to " << g_InControlState.SpeedControl << endl;
+  if (!g_InControlState.fRobotOn ) {
+    // Trigger command execution
+    commandFromRosTopic = "leftV=125";
+  }
 }
 
 class MyRosClass {

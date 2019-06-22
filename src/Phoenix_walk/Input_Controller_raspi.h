@@ -148,11 +148,16 @@ void InputController::AllowControllerInterrupts(boolean fAllow)
 // This is The main code to input function to read inputs from the Commander and then
 //process any commands.
 //==============================================================================
+string commandFromRosTopic;
 void InputController::ControlInput(void)
 {
   static bool activated = false;
   string cmd = find_new_text();
   
+  if (cmd == "" && commandFromRosTopic != "") {
+    cmd = commandFromRosTopic;
+    commandFromRosTopic = "";
+  }
 
 //CommanderTurnRobotOff();
   // See if we have a new command available...

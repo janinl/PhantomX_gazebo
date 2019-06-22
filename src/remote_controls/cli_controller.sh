@@ -1,7 +1,7 @@
 #!/bin/bash
 
 speed=0
-maxSpeed=5
+maxSpeed=10
 rosTopicSpeed=/webbie1/cmd_abs_speed
 rosTopicTurn=/webbie1/cmd_add_rel_turn
 
