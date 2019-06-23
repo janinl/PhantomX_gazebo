@@ -386,6 +386,7 @@ void ax12SetRegister(int servoId, int regstart, int data, int length) {
 #include "mytypes.h"
 #include "Hex_Cfg.h"
 #include <ros/ros.h>
+#include "geometry_msgs/Twist.h"
 #include "std_msgs/Float64.h"
 #include "std_msgs/String.h"
 #include "std_msgs/UInt8MultiArray.h"
@@ -414,6 +415,25 @@ void cmdAbsSpeedCallback(const std_msgs::Float64::ConstPtr& msg)
     commandFromRosTopic = "leftV=125";
   }
 }
+void cmdAddRelativeRotationCallback(const std_msgs::Float64::ConstPtr& msg)
+{
+  std::cout << "cmdAddRelativeRotationCallback" << std::endl;
+  //g_InControlState.BodyRot1.y = msg->data;
+  cout << "Setting rotation to " << g_InControlState.BodyRot1.y << endl;
+  commandFromRosTopic = "rightH=" + std::to_string(msg->data);
+}
+void cmdVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
+{
+  std::cout << "cmdVelCallback" << std::endl;
+  g_InControlState.SpeedControl = std::min<int>(2000,20/(msg->linear.x?:0.01));
+  g_InControlState.TravelLength.y = std::min<int>(31,31*msg->angular.z);
+  cout << "Setting speed to " << g_InControlState.SpeedControl << endl;
+  if (!g_InControlState.fRobotOn ) {
+    // Trigger command execution
+    commandFromRosTopic = "leftV=125";
+  }
+}
+
 
 class MyRosClass {
 public:
@@ -424,13 +444,18 @@ public:
   vector<string> servoId2jointName;
   ros::Subscriber jointStateSub;
   ros::Subscriber cmdAbsSpeedSub;
+  ros::Subscriber cmdAddRelativeRotation;
+  ros::Subscriber cmdAddRelativeRotationSub;
+  ros::Subscriber cmdVelSub;
   //ros::Rate loop_rate(10);
 
   MyRosClass()
     : n()
     , allJointsPosAndSpeed(n.advertise<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 1))
     , jointStateSub( n.subscribe("/phantomx/joint_states", 1, jointStateCallback) )
-    , cmdAbsSpeedSub( n.subscribe("/webbie1/cmd_abs_speed", 1, cmdAbsSpeedCallback) )
+    //, cmdAbsSpeedSub( n.subscribe("/webbie1/cmd_abs_speed", 1, cmdAbsSpeedCallback) )
+    //, cmdAddRelativeRotationSub( n.subscribe("/webbie1/cmd_add_relative_rotation", 1, cmdAddRelativeRotationCallback) )
+    , cmdVelSub( n.subscribe("/webbie1/cmd_vel", 1, cmdVelCallback) )
   {
     servoId2jointName.resize(18+1);
     servoId2jointName[cRRCoxaPin] = "c1_rr";

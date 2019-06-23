@@ -231,7 +231,7 @@ activated=false;
 
     // We received another command than our owns => activate walking
     activated = true;
-  }
+//  }
   if (activated) {
     // If we receive a valid message than turn robot on...
     boolean fAdjustLegPositions = false;
@@ -539,15 +539,7 @@ activated=false;
     buttonsPrev = command.buttons;
     extPrev = command.ext;
     //g_ulLastMsgTime = millis();
-  } 
-  else {
-/*
-    // We did not receive a valid packet.  check for a timeout to see if we should turn robot off...
-    if (g_InControlState.fRobotOn) {
-      if ((millis() - g_ulLastMsgTime) > ARBOTIX_TO)
-        CommanderTurnRobotOff();
-    }
-*/
+  }
   }
 }
 

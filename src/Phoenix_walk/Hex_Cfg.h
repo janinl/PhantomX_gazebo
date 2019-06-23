@@ -292,7 +292,7 @@
 
 // Lets try some multi leg positions depending on height settings.
 #define CNT_HEX_INITS 2
-#define MAX_BODY_Y  150
+#define MAX_BODY_Y  127 // 150 was negative!
 #ifdef DEFINE_HEX_GLOBALS
 const byte g_abHexIntXZ[] PROGMEM = {cHexInitXZ, 144};
 const byte g_abHexMaxBodyY[] PROGMEM = { 20, MAX_BODY_Y};

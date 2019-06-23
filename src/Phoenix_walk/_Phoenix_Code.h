@@ -787,7 +787,7 @@ void setup(){
 
 
   //Gait
-  g_InControlState.GaitType = 0; 
+  g_InControlState.GaitType = 1; 
   g_InControlState.BalanceMode = 0;
   g_InControlState.LegLiftHeight = 80;
   g_InControlState.ForceGaitStepCnt = 0;    // added to try to adjust starting positions depending on height...
