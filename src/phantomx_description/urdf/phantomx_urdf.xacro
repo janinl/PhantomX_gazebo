@@ -13,7 +13,7 @@
       <joint name="j_phantomx_attachment" type="fixed">
         <parent link="${parent}"/>
         <child link="MP_BODY"/>
-        <insert_block name="origin" />
+        <xacro:insert_block name="origin" />
       </joint>
       
 
@@ -207,10 +207,9 @@
    <transmission name="t_c1_${suffix}">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>    
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
@@ -219,10 +218,9 @@
    <transmission name="t_thigh_${suffix}">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>    
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
@@ -231,10 +229,9 @@
    <transmission name="t_tibia_${suffix}">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_${suffix}">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
       <mechanicalReduction>1</mechanicalReduction>
     </actuator>
   </transmission>
