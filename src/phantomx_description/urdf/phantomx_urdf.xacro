@@ -21,7 +21,7 @@
         <inertial>
           <origin xyz="0 0 0" />
           <mass value="0.97559947"/>
-          <inertia ixx="3.1081800"  ixy="-0.25460189"  ixz="2.0318174" iyy="6.3787776" iyz="0.16417863" izz="5.3316425" />
+          <inertia ixx="0.004"  ixy="0"  ixz="0" iyy="0.004" iyz="0" izz="0.004" />
         </inertial>
         <visual>
           <!--origin xyz="-0.0235 0 -0.03525" rpy="0 0 0" /-->
@@ -71,8 +71,8 @@
   <link name="c1_${suffix}">
     <inertial>
       <origin xyz="0 -${connect_offset} 0" rpy="0 0 0"  />
-      <mass value="0.024357719"/>
-     <inertia ixx="0.0051411124"  ixy="-0.00057530255"  ixz="-0.000024729049" iyy="0.0081915737" iyz="-0.000019223094" izz="0.0011379812" />
+      <mass value="0.012"/>
+      <inertia ixx="0.0005"  ixy="0"  ixz="0" iyy="0.0005" iyz="0" izz="0.0005" />
     </inertial>
     <visual>
       <origin xyz="0 -0.0252 0" rpy="0 0 0"  />
@@ -96,8 +96,8 @@
   <link name="c2_${suffix}">
     <inertial>
       <origin xyz="0 -${connect_offset} 0" rpy="0 0 0"  />
-      <mass value="0.024357719"/>
-     <inertia ixx="0.0051411124"  ixy="-0.00057530255"  ixz="-0.000024729049" iyy="0.0081915737" iyz="-0.000019223094" izz="0.0011379812" />
+      <mass value="0.012"/>
+      <inertia ixx="0.0005"  ixy="0"  ixz="0" iyy="0.0005" iyz="0" izz="0.0005" />
     </inertial>
     <visual>
       <origin xyz="0 -0.0252 0" rpy="0 0 0"  />
@@ -122,8 +122,8 @@
   <link name="thigh_${suffix}">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"  />
-      <mass value="0.024357719"/>
-     <inertia ixx="0.0051411124"  ixy="-0.00057530255"  ixz="-0.000024729049" iyy="0.0081915737" iyz="-0.000019223094" izz="0.0011379812" />
+      <mass value="0.070"/>
+      <inertia ixx="0.0005"  ixy="0"  ixz="0" iyy="0.0005" iyz="0" izz="0.0005" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"  />
@@ -148,8 +148,8 @@
   <link name="tibia_${suffix}">
     <inertial>
       <origin xyz="0 0 0" rpy="0 0 0"  />
-      <mass value="0.024357719"/>
-     <inertia ixx="0.0051411124"  ixy="-0.00057530255"  ixz="-0.000024729049" iyy="0.0081915737" iyz="-0.000019223094" izz="0.0011379812" />
+      <mass value="0.080"/>
+      <inertia ixx="0.0005"  ixy="0"  ixz="0" iyy="0.0005" iyz="0" izz="0.0005" />
     </inertial>
     <visual>
       <origin xyz="0 0 0" rpy="0 0 0"  />
@@ -252,6 +252,8 @@
 
   <gazebo reference="tibia_${suffix}">    
     <material>Gazebo/Grey</material>
+    <mu1 value="12000.0"/>
+    <mu2 value="12000.0"/>
   </gazebo>
 
   
