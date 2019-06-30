@@ -3,7 +3,7 @@
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="worlds/empty.world"/>
-    <arg name="paused" value="true"/>
+    <arg name="paused" value="false"/>
   </include>
   
    <param name="robot_description" textfile="$(find phantomx_description)/urdf/phantomx.urdf" />  
