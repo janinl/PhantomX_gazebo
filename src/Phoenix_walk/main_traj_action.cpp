@@ -22,8 +22,15 @@ void activeCb()
 // Called every time feedback is received for the goal
 void feedbackCb(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &feedback)
 {
-  std::cout << "Feedback: " << *feedback << std::endl;
+  //std::cout << "Feedback: " << *feedback << std::endl;
   //ROS_INFO("Got Feedback of length %lu", feedback->sequence.size());
+  for (int i=0; i<feedback->error.positions.size(); ++i)
+  {
+    if (feedback->error.positions[i] > 0.1) {
+      std::cout << "Servo struggling: " << i << "\n" << *feedback << std::endl;
+
+    }
+  }
 }
 
 int main(int argc, char **argv)
@@ -68,7 +75,7 @@ int main(int argc, char **argv)
     msg.trajectory.header.frame_id = "whatever";
     msg.trajectory.header.stamp = ros::Time::now();
     std::cout << "Sending goal" << std::endl;
-    webbie1Trajectory->sendGoal(msg, &doneCb, &activeCb); //, &feedbackCb);
+    webbie1Trajectory->sendGoal(msg, &doneCb, &activeCb, &feedbackCb);
 
     ros::spinOnce();
     std::cout << "sleeping..." << std::endl;
