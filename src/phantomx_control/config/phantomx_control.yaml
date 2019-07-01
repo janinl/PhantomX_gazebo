@@ -30,7 +30,8 @@ phantomx:
       - j_tibia_rm
       - j_tibia_rr
     allow_partial_joints_goal: true
-    allow_none: true
+    constraints:
+      goal_time: 10.0
     gains: # Required because we're controlling an effort interface
       j_c1_lf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
       j_c1_lm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
