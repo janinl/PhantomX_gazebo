@@ -40,24 +40,29 @@ int main(int argc, char **argv)
     control_msgs::FollowJointTrajectoryGoal msg;
 
     trajectory_msgs::JointTrajectoryPoint point;
-    point.positions = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    point.positions = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     point.time_from_start = ros::Duration(2.0);
     msg.trajectory.points.push_back(point);
 
-    point.positions = {1, 1, 1, -1, -1, -1, 0, 0, 0, 0, 0, 0};
-    point.time_from_start += ros::Duration(2.0);
-    msg.trajectory.points.push_back(point);
+    //point.positions = {0, 0, 0, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 0, 0, 0};
+    //point.time_from_start += ros::Duration(2.0);
+    //msg.trajectory.points.push_back(point);
 
-    for (int i = 0; i < 6; ++i)
+    for (int i = 6; i < 12; ++i)
     {
-      point.positions[i] = 0;
+      point.positions[i-1] = 0;
+      point.positions[i] = i<9?-1:1;
       point.time_from_start += ros::Duration(1.0);
       msg.trajectory.points.push_back(point);
     }
 
-    msg.trajectory.joint_names = {"j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr", "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr"};
+    msg.trajectory.joint_names = {
+      "j_c1_lf", "j_c1_lm", "j_c1_lr", "j_c1_rf", "j_c1_rm", "j_c1_rr",
+      "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr",
+      "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"
+    };
 
     // fill message header and sent it out
     msg.trajectory.header.frame_id = "whatever";
