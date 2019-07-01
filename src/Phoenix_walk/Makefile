@@ -5,7 +5,10 @@ INCLUDES=-I ../DynamixelSDK/c++/include/dynamixel_sdk
 INCLUDES=-I /opt/ros/melodic/include/
 
 go: main.o BioloidEX.o ax12Serial.o
-	g++ -std=c++14 $^ -o go -O0 -g $(LIBS) -lrt 2>&1
+	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) -lrt 2>&1
+
+go.traj: main_traj.o
+	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) -lrt 2>&1
 
 %.o: %.cpp
 	g++ -std=c++14 $^ -I . $(INCLUDES) -c -O0 -g 2>&1
