@@ -32,24 +32,24 @@ phantomx:
     allow_partial_joints_goal: true
     allow_none: true
     gains: # Required because we're controlling an effort interface
-      j_c1_lf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_c1_lm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_c1_lr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_c1_rf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_c1_rm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_c1_rr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_lf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_lm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_lr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_rf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_rm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_thigh_rr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_lf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_lm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_lr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_rf: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_rm: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
-      j_tibia_rr: {p: 100,   i: 0.1, d: 10, i_clamp: 1}
+      j_c1_lf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_c1_lm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_c1_lr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_c1_rf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_c1_rm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_c1_rr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_lf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_lm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_lr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_rf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_rm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_thigh_rr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_lf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_lm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_lr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_rf: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_rm: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
+      j_tibia_rr: {p: 99,   i: 0, d: 0 } #, i_clamp: 1
 
     
 
