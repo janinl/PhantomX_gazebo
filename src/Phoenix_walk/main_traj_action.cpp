@@ -48,7 +48,7 @@ void activeCb()
 // Called every time feedback is received for the goal
 void feedbackCb(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &feedback)
 {
-  return;
+  //return;
   //std::cout << "Feedback: " << *feedback << std::endl;
   //ROS_INFO("Got Feedback of length %lu", feedback->sequence.size());
   for (int i = 0; i < feedback->error.positions.size(); ++i)
@@ -65,7 +65,7 @@ void feedbackCb(const control_msgs::FollowJointTrajectoryFeedbackConstPtr &feedb
 
 void jointStateCallback2(const sensor_msgs::JointState::ConstPtr &msg)
 {
-  return;
+  //return;
   //std::cout << "jointStateCallback" << *msg << std::endl;
   for (int i = 12; i < msg->effort.size(); ++i)
   {
@@ -103,7 +103,8 @@ void saveTrajectoryPoint()
   }
   points.push_back(point1);
 }
-void calculateTrajectory()
+
+void calculateTrajectoryPoints()
 {
   setup();
   fWalking = true;
@@ -128,49 +129,56 @@ void calculateTrajectory()
   saveTrajectoryPoint();
 }
 
-void submitTrajectory()
+control_msgs::FollowJointTrajectoryGoal gaitTrajectory;
+void calculateTrajectory()
 {
-  control_msgs::FollowJointTrajectoryGoal msg;
+  calculateTrajectoryPoints();
+
   /*
     trajectory_msgs::JointTrajectoryPoint point = points[0];
     //point.positions = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     point.time_from_start = ros::Duration(2.0);
-    msg.trajectory.points.push_back(point);
+    gaitTrajectory.trajectory.points.push_back(point);
 
     //point.positions = {0, 0, 0, 0, 0, 0, 1, 1, 1, -1, -1, -1, 0, 0, 0, 0, 0, 0};
     //point.time_from_start += ros::Duration(2.0);
-    //msg.trajectory.points.push_back(point);
+    //gaitTrajectory.trajectory.points.push_back(point);
 
     for (int i = 6; i < 12; ++i)
     {
       point.positions[i - 1] = 0;
       point.positions[i] = i < 9 ? -1 : 1;
       point.time_from_start += ros::Duration(1.0);
-      //msg.trajectory.points.push_back(point);
+      //gaitTrajectory.trajectory.points.push_back(point);
     }
     */
   auto time_from_start = ros::Duration(0);
-  for (auto point : points)
-  {
-    point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    time_from_start += ros::Duration(2.0);
-    point.time_from_start = time_from_start;
-    msg.trajectory.points.push_back(point);
-  }
+  for (int repeat = 0; repeat < 4; ++repeat)
+    for (auto point : points)
+    {
+      //point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      //point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      time_from_start += ros::Duration(1.0);
+      point.time_from_start = time_from_start;
+      gaitTrajectory.trajectory.points.push_back(point);
+    }
 
-  msg.trajectory.joint_names = {
+  gaitTrajectory.trajectory.joint_names = {
       "j_c1_lf", "j_c1_lm", "j_c1_lr", "j_c1_rf", "j_c1_rm", "j_c1_rr",
       "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr",
       "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"};
 
   // fill message header and sent it out
-  msg.trajectory.header.frame_id = "whatever";
-  msg.trajectory.header.stamp = ros::Time::now();
-  std::cout << "Sending goal" << std::endl;
-  webbie1Trajectory->sendGoal(msg, &doneCb, &activeCb, &feedbackCb);
+  gaitTrajectory.trajectory.header.frame_id = "whatever";
+}
+
+void submitTrajectory()
+{
+  std::cout << "Sending trajectory" << std::endl;
+  gaitTrajectory.trajectory.header.stamp = ros::Time::now();
+  webbie1Trajectory->sendGoal(gaitTrajectory, &doneCb, &activeCb, &feedbackCb);
 }
 
 int main(int argc, char **argv)
