@@ -832,7 +832,7 @@ bool webbie1_loop()
   return true;
 }
 
-bool loop(void)
+bool loop(bool onlyDoCalculations = false)
 {
 //  return webbie1_loop();
 
@@ -980,6 +980,9 @@ bool loop(void)
   //Write IK errors to leds
   LedC = IKSolutionWarning;
   LedA = IKSolutionError;
+
+  if (onlyDoCalculations)
+    return true;
 
   //Drive Servos
   if (g_InControlState.fRobotOn) {

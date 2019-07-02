@@ -11,7 +11,7 @@ go: main.o BioloidEX.o ax12Serial.o
 go.traj: main_traj.o
 	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) -lrt 2>&1
 
-go.traj.action: main_traj_action.o
+go.traj.action: main_traj_action.o BioloidEX.o ax12Serial.o
 	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) $(LIBS_ACTIONLIB) -lrt 2>&1
 
 %.o: %.cpp

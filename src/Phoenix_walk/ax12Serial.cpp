@@ -397,7 +397,7 @@ vector<string> lastJointState_names;
 vector<double> lastJointState_positions;
 void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg)
 {
-  std::cout << "jointStateCallback" << std::endl;
+  //std::cout << "jointStateCallback" << std::endl;
   lastJointState_names = msg->name;
   lastJointState_positions = msg->position;
 
