@@ -9,7 +9,7 @@ phantomx:
 
   # HEAD
   head_controller:
-    type: effort_controllers/JointTrajectoryController
+    type: velocity_controllers/JointTrajectoryController
     joints:
       - j_c1_lf
       - j_c1_lm
