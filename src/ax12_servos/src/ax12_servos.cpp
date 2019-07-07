@@ -62,12 +62,12 @@ double convertBvalsToRad(uint8_t *bVals)
   double posRad = (posInt-512)*(PI*150.0/180.0/512.0);
 }
 
-void convertPosAndSpeedTo4bytes(double posInRad, long speed, uint8_t *valArray, double lastPosInRad)
+void convertPosAndSpeedTo4bytes(double posInRad, double radiansPerSec, uint8_t *valArray, double lastPosInRad)
 {
   long g_awGoalAXPos = 512 + ( posInRad / (PI*150.0/180.0/512.0) );
   if (g_awGoalAXPos<0) g_awGoalAXPos=0;
   if (g_awGoalAXPos>1023) g_awGoalAXPos=1023;
-  long wSpeed = 50 * abs(posInRad - lastPosInRad);
+  long wSpeed = radiansPerSec * 1023 * 60 / (114 * 2 * PI); // 0x3ff=114rpm - same value for AX12 and AX18 //50 * abs(posInRad - lastPosInRad);
   if (wSpeed>500) wSpeed = 500; // todo: increase to 1023
   if (wSpeed<1) wSpeed = 1;
   valArray[0] = g_awGoalAXPos & 0xff;
@@ -88,6 +88,8 @@ void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr
   std::cout << "callback_jointGoals" << *msg << std::endl;
   assert(jointNames.size() == msg->trajectory.joint_names.size());
   assert(msg->trajectory.points.size() == 1);
+  assert(msg->trajectory.points[0].positions.size() == 18);
+  assert(msg->trajectory.points[0].velocities.size() == 18);
 
   // convert to uint8[]
   const uint8_t servoIds[18] = {
@@ -99,7 +101,7 @@ void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr
   for (int i = 0; i < 18; ++i)
   {
     assert(jointNames[i] == msg->trajectory.joint_names[i]);
-    convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], 50/*msg->trajectory.points[0].velocities[i]*/, &bVals2[4*i], lastPositions[i]);
+    convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], msg->trajectory.points[0].velocities[i], &bVals2[4*i], lastPositions[i]);
     lastPositions[i] = msg->trajectory.points[0].positions[i];
   }
 
@@ -225,7 +227,7 @@ vector<string> servoId2jointName;
     servoId2jointName[cLFCoxaPin] = "c1_lf";
     servoId2jointName[cLFFemurPin] = "thigh_lf";
     servoId2jointName[cLFTibiaPin] = "tibia_lf";
-
+/*
     vector<ros::Subscriber> joint_channels;// = n.subscribe("/hexapd/hj_.../", 10, callback);
     joint_channels.resize(1); // adding empty space for unused servo 0
     servo_status_channels.resize(1); // adding empty space for unused servo 0
@@ -237,7 +239,7 @@ vector<string> servoId2jointName;
       string statusChanName = "/servo/" + to_string(servoId) + "/status";
       servo_status_channels.push_back( n.advertise<std_msgs::Int16MultiArray>(statusChanName, 2) );
     }
-
+*/
     //ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
     ros::Subscriber jointGoalsSub(n.subscribe("/webbie1/joint_goals", 1, callback_jointGoals));
 
