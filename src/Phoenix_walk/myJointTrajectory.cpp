@@ -25,7 +25,7 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
     std::cout << "No trajectory pending" << std::endl;
     return;
   }
-  if (ros::Time::now() < last_publish_time + ros::Duration(1.0)) {
+  if (ros::Time::now() < last_publish_time + ros::Duration(2.0)) {
     std::cout << "Too early. Ignoring joint state message" << std::endl;
     return;
   }
