@@ -14,6 +14,15 @@ go.traj: main_traj.o
 go.traj.action: main_traj_action.o BioloidEX.o ax12Serial.o
 	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) $(LIBS_ACTIONLIB) -lrt 2>&1
 
+go.traj.topic: main_traj_topic.o BioloidEX.o ax12Serial.o
+	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) $(LIBS_ACTIONLIB) -lrt 2>&1
+
+myJointTrajectory: myJointTrajectory.o
+	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) $(LIBS_ACTIONLIB) -lrt 2>&1
+
+jointGoalsSplit: jointGoalsSplit.o
+	g++ -std=c++14 $^ -o $@ -O0 -g $(LIBS) $(LIBS_ACTIONLIB) -lrt 2>&1
+
 %.o: %.cpp
 	g++ -std=c++14 $^ -I . $(INCLUDES) -c -O0 -g 2>&1
 
