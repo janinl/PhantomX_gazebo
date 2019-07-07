@@ -3,6 +3,7 @@
 #include "std_msgs/Float64.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include "std_msgs/Int16MultiArray.h"
+#include "control_msgs/FollowJointTrajectoryAction.h"
 #include <signal.h>
 
 #include "../../Phoenix_walk/mytypes.h"
@@ -48,6 +49,54 @@ void callback_allJointsPosAndSpeed(const std_msgs::UInt8MultiArray::ConstPtr& ms
   if (num_servos*4 > 100) { cout << "ERROR: static array too small" << endl; exit(1); }
   for (int i=0; i<num_servos*4; ++i)
     bVals2[i] = bVals[i];
+
+  ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
+}
+
+
+const double PI = 3.14159265359;
+double convertBvalsToRad(uint8_t *bVals)
+{
+  int posInt = bVals[0] + ( bVals[1] << 8 );
+  // Convert pos from ax12 units (0-1023 for -150deg to +150deg) to radians
+  double posRad = (posInt-512)*(PI*150.0/180.0/512.0);
+}
+
+void convertPosAndSpeedTo4bytes(double posInRad, long speed, uint8_t *valArray)
+{
+  long g_awGoalAXPos = 512 + ( posInRad / (PI*150.0/180.0/512.0) );
+  if (g_awGoalAXPos<0) g_awGoalAXPos=0;
+  if (g_awGoalAXPos>1023) g_awGoalAXPos=1023;
+  long wSpeed = 50;
+  valArray[0] = g_awGoalAXPos & 0xff;
+  valArray[1] = ( g_awGoalAXPos >> 8 ) & 0xff;
+  valArray[2] = wSpeed & 0xff;
+  valArray[3] = wSpeed >> 8;
+}
+
+vector<string> jointNames = {
+    "j_c1_lf", "j_c1_lm", "j_c1_lr", "j_c1_rf", "j_c1_rm", "j_c1_rr",
+    "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr",
+    "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"};
+
+void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr& msg)
+{
+  std::cout << "callback_jointGoals" << *msg << std::endl;
+  assert(jointNames.size() == msg->trajectory.joint_names.size());
+  assert(msg->trajectory.points.size() == 1);
+
+  // convert to uint8[]
+  const uint8_t servoIds[18] = {
+	  cLFCoxaPin, cLMCoxaPin, cLRCoxaPin, cRFCoxaPin, cRMCoxaPin, cRRCoxaPin,
+	  cLFFemurPin, cLMFemurPin, cLRFemurPin, cRFFemurPin, cRMFemurPin, cRRFemurPin,
+	  cLFTibiaPin, cLMTibiaPin, cLRTibiaPin, cRFTibiaPin, cRMTibiaPin, cRRTibiaPin };
+  uint8_t bVals2[18*4];
+  int num_servos = 18;
+  for (int i = 0; i < 18; ++i)
+  {
+    assert(jointNames[i] == msg->trajectory.joint_names[i]);
+    convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], 50/*msg->trajectory.points[0].velocities[i]*/, &bVals2[4*i]);
+  }
 
   ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
 }
@@ -184,11 +233,12 @@ vector<string> servoId2jointName;
       servo_status_channels.push_back( n.advertise<std_msgs::Int16MultiArray>(statusChanName, 2) );
     }
 
-    ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
+    //ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
+    ros::Subscriber jointGoalsSub(n.subscribe("/webbie1/joint_goals", 1, callback_jointGoals));
 
   while (ros::ok() && !CtrlCPressed) {
     ros::spinOnce();
-    getAndPublishNextOf18ServosData();
+    //getAndPublishNextOf18ServosData();
   }
 
   ax12Finish();
