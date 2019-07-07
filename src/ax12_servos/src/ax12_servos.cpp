@@ -62,12 +62,14 @@ double convertBvalsToRad(uint8_t *bVals)
   double posRad = (posInt-512)*(PI*150.0/180.0/512.0);
 }
 
-void convertPosAndSpeedTo4bytes(double posInRad, long speed, uint8_t *valArray)
+void convertPosAndSpeedTo4bytes(double posInRad, long speed, uint8_t *valArray, double lastPosInRad)
 {
   long g_awGoalAXPos = 512 + ( posInRad / (PI*150.0/180.0/512.0) );
   if (g_awGoalAXPos<0) g_awGoalAXPos=0;
   if (g_awGoalAXPos>1023) g_awGoalAXPos=1023;
-  long wSpeed = 50;
+  long wSpeed = 50 * abs(posInRad - lastPosInRad);
+  if (wSpeed>500) wSpeed = 500; // todo: increase to 1023
+  if (wSpeed<1) wSpeed = 1;
   valArray[0] = g_awGoalAXPos & 0xff;
   valArray[1] = ( g_awGoalAXPos >> 8 ) & 0xff;
   valArray[2] = wSpeed & 0xff;
@@ -78,6 +80,8 @@ vector<string> jointNames = {
     "j_c1_lf", "j_c1_lm", "j_c1_lr", "j_c1_rf", "j_c1_rm", "j_c1_rr",
     "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr",
     "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"};
+
+double lastPositions[8] = {0,0,0,0,0,0,0,0};
 
 void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr& msg)
 {
@@ -95,7 +99,8 @@ void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr
   for (int i = 0; i < 18; ++i)
   {
     assert(jointNames[i] == msg->trajectory.joint_names[i]);
-    convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], 50/*msg->trajectory.points[0].velocities[i]*/, &bVals2[4*i]);
+    convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], 50/*msg->trajectory.points[0].velocities[i]*/, &bVals2[4*i], lastPositions[i]);
+    lastPositions[i] = msg->trajectory.points[0].positions[i];
   }
 
   ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
