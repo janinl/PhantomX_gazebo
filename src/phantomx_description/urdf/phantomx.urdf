@@ -158,7 +158,7 @@
   <transmission name="t_c1_rf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_rf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_rf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -167,7 +167,7 @@
   <transmission name="t_thigh_rf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_rf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_rf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -176,7 +176,7 @@
   <transmission name="t_tibia_rf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_rf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_rf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -317,7 +317,7 @@
   <transmission name="t_c1_rm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_rm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_rm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -326,7 +326,7 @@
   <transmission name="t_thigh_rm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_rm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_rm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -335,7 +335,7 @@
   <transmission name="t_tibia_rm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_rm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_rm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -476,7 +476,7 @@
   <transmission name="t_c1_rr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_rr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_rr">
       <mechanicalReduction>1</mechanicalReduction>
@@ -485,7 +485,7 @@
   <transmission name="t_thigh_rr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_rr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_rr">
       <mechanicalReduction>1</mechanicalReduction>
@@ -494,7 +494,7 @@
   <transmission name="t_tibia_rr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_rr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_rr">
       <mechanicalReduction>1</mechanicalReduction>
@@ -635,7 +635,7 @@
   <transmission name="t_c1_lf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_lf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_lf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -644,7 +644,7 @@
   <transmission name="t_thigh_lf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_lf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_lf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -653,7 +653,7 @@
   <transmission name="t_tibia_lf">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_lf">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_lf">
       <mechanicalReduction>1</mechanicalReduction>
@@ -794,7 +794,7 @@
   <transmission name="t_c1_lm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_lm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_lm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -803,7 +803,7 @@
   <transmission name="t_thigh_lm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_lm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_lm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -812,7 +812,7 @@
   <transmission name="t_tibia_lm">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_lm">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_lm">
       <mechanicalReduction>1</mechanicalReduction>
@@ -953,7 +953,7 @@
   <transmission name="t_c1_lr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_c1_lr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_c1_lr">
       <mechanicalReduction>1</mechanicalReduction>
@@ -962,7 +962,7 @@
   <transmission name="t_thigh_lr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_thigh_lr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_thigh_lr">
       <mechanicalReduction>1</mechanicalReduction>
@@ -971,7 +971,7 @@
   <transmission name="t_tibia_lr">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="j_tibia_lr">
-      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
     </joint>
     <actuator name="m_tibia_lr">
       <mechanicalReduction>1</mechanicalReduction>

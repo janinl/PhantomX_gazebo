@@ -34,7 +34,7 @@ void initRosPublishers(ros::NodeHandle &n)
 
   for (auto &jointName : jointNames)
   {
-    string topicName = "/phantomx/" + jointName + "_velocity_controller";
+    string topicName = "/phantomx/" + jointName + "_position_controller/command";
     joint_pubs.push_back(n.advertise<std_msgs::Float64>(topicName, 1));
   }
   /*
