@@ -10,5 +10,5 @@ cd src
 git clone https://github.com/GT-RAIL/rosauth.git
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 cd ..
-catkin_make --only-pkg-with-deps ax12_servos rosbridge_server
-
+#catkin_make --only-pkg-with-deps ax12_servos rosbridge_server
+catkin_make -DCMAKE_BUILD_TYPE=Debug --only-pkg-with-deps ax12_servos
