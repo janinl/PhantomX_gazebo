@@ -7,8 +7,6 @@
 using namespace std;
 
 vector<ros::Publisher> joint_pubs;
-control_msgs::FollowJointTrajectoryGoal trajectory;
-int currentTrajectoryPoint = 0;
 vector<string> jointNames = {
     "j_c1_lf", "j_c1_lm", "j_c1_lr", "j_c1_rf", "j_c1_rm", "j_c1_rr",
     "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr",

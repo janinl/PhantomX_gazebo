@@ -9,6 +9,7 @@ ros::Publisher jointGoals_pub;
 control_msgs::FollowJointTrajectoryGoal trajectory;
 int currentTrajectoryPoint = 0;
 ros::Time last_publish_time;
+vector<double> currentPositions(18);
 
 void jointTrajectoryCommandCallback(const control_msgs::FollowJointTrajectoryGoal::ConstPtr &msg)
 {
@@ -20,21 +21,45 @@ void jointTrajectoryCommandCallback(const control_msgs::FollowJointTrajectoryGoa
 
 void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
 {
-  std::cout << "jointStateCallback" << std::endl;
-  if (trajectory.trajectory.points.empty()) {
-    std::cout << "No trajectory pending" << std::endl;
+  //std::cout << "jointStateCallback" << std::endl;
+  static int messageAlreadyPrinted1 = 0;
+  if (trajectory.trajectory.points.empty())
+  {
+    if (messageAlreadyPrinted1++ == 0)
+      std::cerr << "No trajectory pending" << std::endl;
+    else
+      std::cerr << ".";
     return;
   }
-  if (ros::Time::now() < last_publish_time + ros::Duration(2.0)) {
-    std::cout << "Too early. Ignoring joint state message" << std::endl;
+  messageAlreadyPrinted1 = 0;
+
+  static int messageAlreadyPrinted2 = 0;
+  if (ros::Time::now() < last_publish_time + ros::Duration(2.0))
+  {
+    if (messageAlreadyPrinted2++ == 0)
+      std::cerr << "Too early. Ignoring joint state message" << std::endl;
+    else
+      std::cerr << ".";
     return;
   }
+  messageAlreadyPrinted2 = 0;
+
   std::cout << "jointStateCallback msg: " << *msg << std::endl;
+  std::cout << "currentTrajectoryPoint: " << currentTrajectoryPoint << std::endl;
 
   control_msgs::FollowJointTrajectoryGoal trajectoryWithOnePoint = trajectory;
   //trajectoryWithOnePoint.trajectory.joint_names = trajectory.trajectory.joint_names;
   trajectoryWithOnePoint.trajectory.points.clear();
   trajectoryWithOnePoint.trajectory.points.push_back(trajectory.trajectory.points[currentTrajectoryPoint]);
+  // Calculate updated velopcity to reach each goal
+  trajectoryWithOnePoint.trajectory.points[0].velocities.clear();
+  for (int i=0; i<trajectoryWithOnePoint.trajectory.points[0].positions.size(); ++i) {
+    double radians = abs(trajectoryWithOnePoint.trajectory.points[0].positions[i] - currentPositions[i]);
+    double radiansPerSec = radians / 1.0; // todo
+    trajectoryWithOnePoint.trajectory.points[0].velocities.push_back(radiansPerSec);
+  }
+  currentPositions = trajectoryWithOnePoint.trajectory.points[0].positions;
+
   jointGoals_pub.publish(trajectoryWithOnePoint);
 
   currentTrajectoryPoint++;
@@ -59,7 +84,6 @@ void initRosPublishers(ros::NodeHandle &n)
     ROS_INFO("Waiting for subscribers to connect");
     ros::Duration(1.0).sleep();
   }
-
 }
 
 int main(int argc, char **argv)
