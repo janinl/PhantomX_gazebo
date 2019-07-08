@@ -73,8 +73,9 @@ void calculateTrajectoryPoints()
   setup();
   fWalking = true;
   g_InControlState.TravelLength.z = -127;
-  g_BodyYOffset = 100;
   g_InControlState.BodyPos.y = 100;
+  GaitPosZ[1] = GaitPosZ[3] = GaitPosZ[5] = (g_InControlState.TravelLength.z/(short)g_InControlState.gaitCur.TLDivFactor);
+
   loop(true);
   saveTrajectoryPoint();
   loop(true);
@@ -91,6 +92,17 @@ void calculateTrajectoryPoints()
   saveTrajectoryPoint();
   loop(true);
   saveTrajectoryPoint();
+
+  // For debugging: make half gait go back and forth
+  //int pointnums[8] = {0, 1, 2, 1, 0, 7, 6, 7};
+  points[3] = points[1];
+  points[4] = points[0];
+  points[5] = points[7];
+  return;
+  // For debugging: 1,2
+  points[0] = points[1];
+  points[1] = points[2];
+  points.resize(2);
 }
 
 control_msgs::FollowJointTrajectoryGoal gaitTrajectory;

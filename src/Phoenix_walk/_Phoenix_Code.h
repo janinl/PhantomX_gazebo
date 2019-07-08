@@ -1400,6 +1400,10 @@ void Gait (byte GaitCurrentLegNr)
     GaitPosX[GaitCurrentLegNr] = -g_InControlState.TravelLength.x/g_InControlState.gaitCur.LiftDivFactor;
     GaitPosY[GaitCurrentLegNr] = -3*g_InControlState.LegLiftHeight/(3+g_InControlState.gaitCur.HalfLiftHeight);     //Easier to shift between div factor: /1 (3/3), /2 (3/6) and 3/4
     GaitPosZ[GaitCurrentLegNr] = -g_InControlState.TravelLength.z/g_InControlState.gaitCur.LiftDivFactor;
+    #define LJFIX
+    #ifdef LJFIX
+    GaitPosZ[GaitCurrentLegNr] = - 3*g_InControlState.TravelLength.z/4; // Works with gait where g_InControlState.gaitCur.LiftDivFactor=2
+    #endif
     GaitRotY[GaitCurrentLegNr] = -g_InControlState.TravelLength.y/g_InControlState.gaitCur.LiftDivFactor;
   }    
   // _A_      
@@ -1408,6 +1412,9 @@ void Gait (byte GaitCurrentLegNr)
     GaitPosX[GaitCurrentLegNr] = g_InControlState.TravelLength.x/g_InControlState.gaitCur.LiftDivFactor;
     GaitPosY[GaitCurrentLegNr] = -3*g_InControlState.LegLiftHeight/(3+g_InControlState.gaitCur.HalfLiftHeight); // Easier to shift between div factor: /1 (3/3), /2 (3/6) and 3/4
     GaitPosZ[GaitCurrentLegNr] = g_InControlState.TravelLength.z/g_InControlState.gaitCur.LiftDivFactor;
+    #ifdef LJFIX
+    GaitPosZ[GaitCurrentLegNr] = 3*g_InControlState.TravelLength.z/4; // Works with gait where g_InControlState.gaitCur.LiftDivFactor=2
+    #endif
     GaitRotY[GaitCurrentLegNr] = g_InControlState.TravelLength.y/g_InControlState.gaitCur.LiftDivFactor;
   }
 

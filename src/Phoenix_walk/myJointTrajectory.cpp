@@ -34,7 +34,9 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   messageAlreadyPrinted1 = 0;
 
   static int messageAlreadyPrinted2 = 0;
-  if (ros::Time::now() < last_publish_time + ros::Duration(2.0))
+  ros::Time t1 = ros::Time::now();
+  ros::Time t2 = last_publish_time + ros::Duration(2.0);
+  if (t1 < t2)
   {
     if (messageAlreadyPrinted2++ == 0)
       std::cerr << "Too early. Ignoring joint state message" << std::endl;
