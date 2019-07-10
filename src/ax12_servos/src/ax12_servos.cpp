@@ -10,6 +10,7 @@
 #include "../../Phoenix_walk/Hex_Cfg.h"
 
 vector<ros::Publisher> servo_status_channels;
+bool emergencyStopActive = false;
 
 
 void callback(const std_msgs::Float64::ConstPtr& msg, int servoId, bool isReverse)
@@ -85,7 +86,12 @@ double lastPositions[8] = {0,0,0,0,0,0,0,0};
 
 void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr& msg)
 {
-  std::cout << "callback_jointGoals" << *msg << std::endl;
+  std::cout << "callback_jointGoals" << std::endl;
+  if (emergencyStopActive) {
+    std::cout << "emergency stop active" << std::endl;
+    return;
+  }
+  std::cout << "msg=" << *msg << std::endl;
   assert(jointNames.size() == msg->trajectory.joint_names.size());
   assert(msg->trajectory.points.size() == 1);
   assert(msg->trajectory.points[0].positions.size() == 18);
@@ -145,6 +151,42 @@ void getAndPublishNextOf18ServosData()
 
   // next servo
   currentServo = currentServo % 18 + 1;
+}
+
+
+void getAndPublishAll18ServosData()
+{
+  uint8_t outData[18*8];
+  int dxl_comm_results[18];
+  uint8_t dxl_errors[18];
+  int numberOfRetries[18];
+  int totalNumberOfRetries;
+  int servoIdIfError;
+
+  ax12Get18ServosData(outData, dxl_comm_results, dxl_errors, numberOfRetries, totalNumberOfRetries, servoIdIfError);
+  if (servoIdIfError>0) {
+    // Immediately stop as many servos as possible
+    cerr << "Big error detected: Could not read from servo " << servoIdIfError << ". Stopping all servos." << endl;
+    emergencyStopActive = true;
+    ax12EmergencyStop18Servos();
+    cerr << "Big error detected: Could not read from servo " << servoIdIfError << ". Tried to stop all servos." << endl;
+    cerr << "dxl_comm_results[servoIdIfError]=" << dxl_comm_results[servoIdIfError-1] << endl;
+    cerr << "dxl_errors[servoIdIfError]=" << (unsigned int)dxl_errors[servoIdIfError-1] << endl;
+  }
+  if (totalNumberOfRetries>0) {
+    // Temporary code, to check if this ever happens
+    cerr << "Retries detected: " << totalNumberOfRetries << " total retries. Stopping all servos." << endl;
+    emergencyStopActive = true;
+    ax12EmergencyStop18Servos();
+    for (int i=0; i<18; ++i) {
+      if (numberOfRetries[i]>0) {
+        cerr << "numberOfRetries[" << i << "]=" << numberOfRetries[i] << endl;
+        cerr << "dxl_comm_results[" << i << "]=" << getDxlCommResultsErrorString(dxl_comm_results[i]) << endl;
+        cerr << "dxl_errors[" << i << "]=" << getDxlErrorsErrorString(dxl_errors[i]) << endl;
+      }
+    }
+  }
+
 }
 
 long unsigned int millis() {
@@ -246,6 +288,8 @@ vector<string> servoId2jointName;
   while (ros::ok() && !CtrlCPressed) {
     ros::spinOnce();
     //getAndPublishNextOf18ServosData();
+    if (!emergencyStopActive)
+      getAndPublishAll18ServosData();
   }
 
   ax12Finish();

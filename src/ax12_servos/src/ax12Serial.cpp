@@ -111,7 +111,6 @@ unsigned char dynamixel_bus_config[AX12_MAX_SERVOS];
 
 
 
-
 #ifndef USE_GAZEBO_SERVOS
 
 #include "dynamixel_sdk.h"                                  // Uses Dynamixel SDK library
@@ -119,6 +118,25 @@ unsigned char dynamixel_bus_config[AX12_MAX_SERVOS];
 
 dynamixel::PortHandler *portHandler = 0;
 dynamixel::PacketHandler *packetHandler = 0;
+
+std::string getDxlCommResultsErrorString(int dxl_comm_result)
+{
+  string result = std::to_string(dxl_comm_result);
+  if (packetHandler)
+    result += "(" + string(packetHandler->getTxRxResult(dxl_comm_result)) + ")";
+  else
+    result += "(?<packetHandler not initialised yet>)";
+  return result;
+}
+std::string getDxlErrorsErrorString(uint8_t dxl_error)
+{
+  string result = std::to_string((unsigned int)dxl_error);
+  if (packetHandler)
+    result += "(" + string(packetHandler->getRxPacketError(dxl_error)) + ")";
+  else
+    result += "(?<packetHandler not initialised yet>)";
+  return result;
+}
 
 void ax12Init(long baud)
 {
@@ -173,7 +191,7 @@ void ax12Init(long baud)
   }
   usleep(500000);
 
-    // Read all servo positions
+    // Read all servo positions and set the goal positions to the same values to avoid a jump at the start
     for (int servoId=1; servoId<=18; servoId++)
     {
       dxl_comm_result = packetHandler->read2ByteTxRx(portHandler, servoId, AX_PRESENT_POSITION_L, &dxl_present_position, &dxl_error);
@@ -187,9 +205,11 @@ void ax12Init(long baud)
       }
 
       printf("[ID:%03d] Pos:%03d\n", servoId, dxl_present_position);
+      ax12SetRegister( servoId, AX_GOAL_POSITION_L, dxl_present_position, 2);
     }
 
 
+  // Set min voltage to a safe value for the Lipo battery
   // Debugging mode: make servos slow and weak
   for (int servoId=1; servoId<=18; servoId++)
   {
@@ -197,8 +217,9 @@ void ax12Init(long baud)
     #define ADDR_LED 25
     #define ADDR_TORQUE_LIMIT 34
     ax12SetRegister( servoId, ADDR_LED, 1 );
-    ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
     ax12SetRegister( servoId, ADDR_TORQUE_LIMIT, 900, 2 );
+    ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
+    ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 114, 1 ); //11.4V. This should be conservative as it's voltage under load
   }
   void setAllPunch(int val);
   setAllPunch(4);
@@ -291,47 +312,96 @@ int ax12GetRegister(int servoId, int regstart, int length, uint32_t *outErr, uin
  return val;
 }
 
-void ax12Get18ServosData()
+
+void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_t dxl_errors[18], int numberOfRetries[18], int &totalNumberOfRetries, int &servoIdIfError)
+// outData: 8 bytes for each servo
+// dxl_comm_results, dxl_errors: error codes of the last unsuccessful retry
+// numberOfRetries
+// totalNumberOfRetries
+// servoIdIfError: If the max number of retries is reached, this is the servo where we stopped
 {
+ totalNumberOfRetries = 0;
+ servoIdIfError = 0;
  uint8_t regstart = AX_PRESENT_POSITION_L;
- uint8_t length = 6;
+ uint8_t length = 8;
+ cout << "ax12Get18ServosData length=" << (int)length << endl;
 
  for (int servoId=1; servoId<=18; ++servoId) {
 
- cout << "ax12Get18ServosData servoId=" << servoId << " length=" << (int)length << endl;
+ //cout << "ax12Get18ServosData servoId=" << servoId << " length=" << (int)length << endl;
 
- int retries = 0;
- int val;
-
- for (;;) {
-  if (retries == 5) { cout << "Aborting" << endl; exit(1); }
-  if (retries++ > 0) { cout << "Retrying" << endl; }
+ dxl_comm_results[servoId-1] = 0;
+ dxl_errors[servoId-1] = 0;
+ for (int retries=0;;) {
+  numberOfRetries[servoId-1]=retries;
+  if (retries == 5) { cout << "Aborting" << endl; servoIdIfError = servoId; return; }
+  if (retries++ > 0) { cout << "Retrying" << endl; totalNumberOfRetries++; }
 
   int dxl_comm_result;
   uint8_t dxl_error;
 
-      uint8_t val3[100];
-      dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, val3, &dxl_error);
+      dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, &outData[8*(servoId-1)], &dxl_error);
       //dxl_comm_result = packetHandler->readTx(portHandler, servoId, regstart, length);
       //dxl_comm_result = packetHandler->readRx(portHandler, servoId, length, val3, &dxl_error);
-      val = val3[0];
-  
+
   if (dxl_comm_result != COMM_SUCCESS)
   {
+  dxl_comm_results[servoId-1] = dxl_comm_result;
+  dxl_errors[servoId-1] = dxl_error;
     printf("%s\n", packetHandler->getTxRxResult(dxl_comm_result));
-    //val = (1<<(length*8))-1; // 255 or 65535
     continue; // retry
   }
   else if (dxl_error != 0)
   {
+  dxl_comm_results[servoId-1] = dxl_comm_result;
+  dxl_errors[servoId-1] = dxl_error;
     printf("%s\n", packetHandler->getRxPacketError(dxl_error));
-    //val = (1<<(length*8))-1; // 255 or 65535
     continue; // retry
   }
     break;
  }
- printf(" => [ID:%03d] %03d:%03d\n", servoId, regstart, val);
+ printf(" => [ID:%02d] Pos=%04d Speed=%04d Load=%04d Volt=%03d Temp=%02d\n", servoId,
+   outData[8*(servoId-1)+0] + (int)outData[8*(servoId-1)+1] << 8,
+   outData[8*(servoId-1)+2] + (int)outData[8*(servoId-1)+3] << 8,
+   outData[8*(servoId-1)+4] + (int)outData[8*(servoId-1)+5] << 8,
+   outData[8*(servoId-1)+6],
+   outData[8*(servoId-1)+7]
+   );
 }
+}
+
+void ax12EmergencyStop18Servos()
+{
+  // Send Speed=1 to all servos
+  uint8_t regstart = AX_GOAL_SPEED_L;
+  uint8_t length = 2;
+//  int data = 1;
+
+//  for (int servoId=1; servoId<=18; ++servoId) {
+//    ax12SetRegister(servoId, regstart, data, length);
+//  }
+ 
+  uint8_t vals[18*length] = { 
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0,
+	  1,0 };
+  uint8_t servoIds[18] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+  ax12GroupSyncWriteDetailed(regstart, length, vals, servoIds, 18);
 }
 
 void ax12GroupSyncWriteDetailed(uint8_t startAddr, uint8_t length, uint8_t bVals[], const uint8_t servoIds[], unsigned int NUM_SERVOS)
