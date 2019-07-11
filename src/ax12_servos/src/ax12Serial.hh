@@ -19,7 +19,7 @@
 
 // This version hacked up by Kurt Eckhardt...
 
-//#include <Arduino.h> 
+//#include <Arduino.h>
 
 #ifndef ax12_h
 #define ax12_h
@@ -34,9 +34,9 @@
 /** Configuration **/
 
 #if defined(__ARDUINO_X86__)
-    // Currently assume using USB2AX or the like
+// Currently assume using USB2AX or the like
 #define PAX12Serial (void*)0   // no default yet... 
-#else    
+#else
 #define PAX12Serial &Serial1
 #endif
 
