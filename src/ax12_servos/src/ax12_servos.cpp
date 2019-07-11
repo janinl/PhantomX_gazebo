@@ -246,7 +246,7 @@ int main(int argc, char **argv)
   }
 
 
-  ros::init(argc, argv, "ax12_servos");
+  ros::init(argc, argv, "ax12_servos", ros::init_options::NoSigintHandler);
   ros::NodeHandle n;
 
 vector<string> servoId2jointName;
@@ -285,7 +285,7 @@ vector<string> servoId2jointName;
     //ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
     ros::Subscriber jointGoalsSub(n.subscribe("/webbie1/joint_goals", 1, callback_jointGoals));
 
-  while (ros::ok() && !CtrlCPressed) {
+    while (ros::ok() && !CtrlCPressed) {
     ros::spinOnce();
     //getAndPublishNextOf18ServosData();
     if (!emergencyStopActive)
@@ -293,6 +293,9 @@ vector<string> servoId2jointName;
   }
 
   ax12Finish();
+  ros::shutdown();
+  ros::waitForShutdown();
+  _exit(0); // Skip atexit stuff to hide a segfault :( maybe related to g++7 stdlib warnings...
   return 0;
 }
 

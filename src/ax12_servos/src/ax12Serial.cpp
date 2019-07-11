@@ -6,9 +6,7 @@
 
 using namespace std;
 
-string getAx12RegName(int reg)
-{
-static vector<string> ax12RegIdToName = {
+const vector<string> ax12RegIdToName = {
 "AX_MODEL_NUMBER_L", //0
 "AX_MODEL_NUMBER_H", //1
 "AX_VERSION", //2
@@ -61,6 +59,8 @@ static vector<string> ax12RegIdToName = {
 "AX_PUNCH_L", //48
 "AX_PUNCH_H" //49
 };
+string getAx12RegName(int reg)
+{
   if (reg < ax12RegIdToName.size())
     return ax12RegIdToName[reg];
   return "unknown";
@@ -219,7 +219,7 @@ void ax12Init(long baud)
     ax12SetRegister( servoId, ADDR_LED, 1 );
     ax12SetRegister( servoId, ADDR_TORQUE_LIMIT, 900, 2 );
     ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
-    ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 114, 1 ); //11.4V. This should be conservative as it's voltage under load
+    ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 104, 1 ); //at 12.2V battery, it triggered 11.4V alarm. This should be conservative as it's voltage under load
   }
   void setAllPunch(int val);
   setAllPunch(4);
@@ -360,10 +360,12 @@ void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_
   }
     break;
  }
- printf(" => [ID:%02d] Pos=%04d Speed=%04d Load=%04d Volt=%03d Temp=%02d\n", servoId,
-   outData[8*(servoId-1)+0] + (int)outData[8*(servoId-1)+1] << 8,
-   outData[8*(servoId-1)+2] + (int)outData[8*(servoId-1)+3] << 8,
-   outData[8*(servoId-1)+4] + (int)outData[8*(servoId-1)+5] << 8,
+ printf(" => [ID:%02d] Pos=%04d Speed=%c%04d Load=%c%04d Volt=%03d Temp=%02d\n", servoId,
+   outData[8*(servoId-1)+0] + ((int)outData[8*(servoId-1)+1] << 8),
+   (outData[8*(servoId-1)+3] & 4)? '+' : '-',
+   outData[8*(servoId-1)+2] + (((int)outData[8*(servoId-1)+3] & 3) << 8),
+   (outData[8*(servoId-1)+4] & 4)? '+' : '-',
+   outData[8*(servoId-1)+4] + (((int)outData[8*(servoId-1)+5] & 3) << 8),
    outData[8*(servoId-1)+6],
    outData[8*(servoId-1)+7]
    );
