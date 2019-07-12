@@ -4,15 +4,17 @@
 #include "std_msgs/UInt8MultiArray.h"
 #include "std_msgs/Int16MultiArray.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
+#include "sensor_msgs/JointState.h"
 #include <signal.h>
 
 #include "../../Phoenix_walk/mytypes.h"
 #include "../../Phoenix_walk/Hex_Cfg.h"
 
 vector<ros::Publisher> servo_status_channels;
+ros::Publisher joint_states_pub;
 bool emergencyStopActive = false;
 
-
+/*
 void callback(const std_msgs::Float64::ConstPtr& msg, int servoId, bool isReverse)
 {
     ROS_INFO("I heard: servoId=%d [%f]", servoId, msg->data);
@@ -56,7 +58,7 @@ void callback_allJointsPosAndSpeed(const std_msgs::UInt8MultiArray::ConstPtr& ms
 
     ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
 }
-
+*/
 
 const double PI = 3.14159265359;
 double convertBvalsToRad(uint8_t *bVals)
@@ -64,6 +66,14 @@ double convertBvalsToRad(uint8_t *bVals)
     int posInt = bVals[0] + ( bVals[1] << 8 );
     // Convert pos from ax12 units (0-1023 for -150deg to +150deg) to radians
     double posRad = (posInt-512)*(PI*150.0/180.0/512.0);
+    return posRad;
+}
+double convertBvalsToRadPerSec(uint8_t *bVals)
+{
+    int wSpeed = bVals[0] + ( (bVals[1] & 3) << 8 );
+    // Convert pos from ax12 units (0-1023 for -150deg to +150deg) to radians
+    double radiansPerSec = wSpeed * ((114 * 2 * PI) / (1023 * 60));
+    return radiansPerSec;
 }
 
 void convertPosAndSpeedTo4bytes(double posInRad, double radiansPerSec, uint8_t *valArray, double lastPosInRad)
@@ -118,7 +128,7 @@ void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr
 
     ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
 }
-
+/*
 void getAndPublishNextOf18ServosData()
 {
     static int currentServo = 1;
@@ -157,7 +167,7 @@ void getAndPublishNextOf18ServosData()
     // next servo
     currentServo = currentServo % 18 + 1;
 }
-
+*/
 
 void getAndPublishAll18ServosData()
 {
@@ -192,15 +202,35 @@ void getAndPublishAll18ServosData()
         }
     }
 
+    // Publish joint_states
+    if (!emergencyStopActive)
+    {
+        sensor_msgs::JointState joint_states;
+
+        joint_states.name = jointNames;
+        for (int i=0; i<18; ++i) {
+            //double pos  = outData[8*i  ] + (outData[8*i+1] << 8);
+            double pos = convertBvalsToRad(&outData[8*i]);
+            //double vel  = outData[8*i+2] + ((outData[8*i+3] & 3) << 8);
+            double vel = convertBvalsToRadPerSec(&outData[8*i+2]);
+            //double load = outData[8*i+4] + ((outData[8*i+3] & 6) << 8);
+            double load = convertBvalsToRadPerSec(&outData[8*i+4]);
+            joint_states.position.push_back(pos);
+            joint_states.velocity.push_back(vel);
+            joint_states.effort.push_back(load);
+        }
+        joint_states_pub.publish(joint_states);
+    }
 }
 
+/*
 long unsigned int millis() {
     struct timeval tp;
     gettimeofday(&tp, NULL);
     long unsigned int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     return ms;
 }
-
+*/
 
 bool CtrlCPressed = false;
 void signalHandler(int sig)
@@ -288,6 +318,7 @@ int main(int argc, char **argv)
         }
     */
     //ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
+    joint_states_pub = n.advertise<sensor_msgs::JointState>("/phantomx/joint_states", 1);
     ros::Subscriber jointGoalsSub(n.subscribe("/webbie1/joint_goals", 1, callback_jointGoals));
 
     while (ros::ok() && !CtrlCPressed) {
