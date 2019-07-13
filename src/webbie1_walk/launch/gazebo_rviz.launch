@@ -28,18 +28,22 @@
   </node>
 
 
+  <arg name="rviz" default="1" />
+  <group if="$(arg rviz)">
 
+    <!-- robot_state_publisher for rviz -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" >
+      <param name="ignore_timestamp" value="true" />
+      <remap from="/joint_states" to="/phantomx/joint_states" />
+    </node>
 
-  <!-- rviz -->
-  <arg name="gui" default="true" />
-  <arg name="rvizconfig" default="$(find viz)/config.rviz" />
+    <!-- rviz -->
+    <arg name="gui" default="true" />
+    <arg name="rvizconfig" default="$(find viz)/config.rviz" />
 
-  <param name="use_gui" value="$(arg gui)"/>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" output="screen" />
+    <param name="use_gui" value="$(arg gui)"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" output="screen" />
 
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" >
-    <remap from="/joint_states" to="/phantomx/joint_states" />
-  </node>
 <!--
   // The above publisher is making rviz show the simulated/real position
   // Use the publisher below instead to rviz the position we send to the robot
@@ -51,6 +55,7 @@
     <remap from="/tf" to="/commanded/tf" />
   </node>
 -->
+  </group>
 
 </launch>
 
