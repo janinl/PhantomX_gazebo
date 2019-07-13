@@ -10,6 +10,7 @@ control_msgs::FollowJointTrajectoryGoal trajectory;
 int currentTrajectoryPoint = 0;
 ros::Time last_publish_time;
 vector<double> currentPositions(18);
+bool noTrajectoryPointWasEverSent = true;
 
 void jointTrajectoryCommandCallback(const control_msgs::FollowJointTrajectoryGoal::ConstPtr &msg)
 {
@@ -33,6 +34,7 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   }
   messageAlreadyPrinted1 = 0;
 
+#ifdef ONE_STEP_EVERY_2_SECONDS
   static int messageAlreadyPrinted2 = 0;
   ros::Time t1 = ros::Time::now();
   ros::Time t2 = last_publish_time + ros::Duration(2.0);
@@ -49,23 +51,54 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   std::cout << "jointStateCallback msg: " << *msg << std::endl;
   std::cout << "currentTrajectoryPoint: " << currentTrajectoryPoint << std::endl;
 
+#else
+
+  // Have we reached the trajectory point goal?
+  std::cout << "jointStateCallback msg: " << *msg << std::endl;
+  std::cout << "currentTrajectoryPoint: " << currentTrajectoryPoint << std::endl;
+
+  bool closeEnough = true;
+  for (int i=0; i<trajectory.trajectory.points[currentTrajectoryPoint].positions.size(); ++i) {
+    currentPositions[i] = msg->position[i];
+    double distanceToGoal = abs(trajectory.trajectory.points[currentTrajectoryPoint].positions[i] - currentPositions[i]);
+    cout << "Distance from goal: i=" << i << ", distanceToGoal=" << distanceToGoal
+    << ", currentPositions=" << currentPositions[i] << ", goal=" << trajectory.trajectory.points[currentTrajectoryPoint].positions[i] << endl;
+    if (distanceToGoal > 0.1)
+      closeEnough = false;
+  }
+
+  if (noTrajectoryPointWasEverSent)
+  {
+    noTrajectoryPointWasEverSent = false;
+  }
+  else {
+    if (closeEnough)
+      cout << "Close enough! Moving to the next trajectory point.";
+    else
+      return;
+  }
+
+#endif
+
+  currentTrajectoryPoint++;
+  currentTrajectoryPoint %= trajectory.trajectory.points.size();
+
+
   control_msgs::FollowJointTrajectoryGoal trajectoryWithOnePoint = trajectory;
   //trajectoryWithOnePoint.trajectory.joint_names = trajectory.trajectory.joint_names;
   trajectoryWithOnePoint.trajectory.points.clear();
   trajectoryWithOnePoint.trajectory.points.push_back(trajectory.trajectory.points[currentTrajectoryPoint]);
-  // Calculate updated velopcity to reach each goal
+  // Calculate updated velocity to reach each goal
   trajectoryWithOnePoint.trajectory.points[0].velocities.clear();
   for (int i=0; i<trajectoryWithOnePoint.trajectory.points[0].positions.size(); ++i) {
     double radians = abs(trajectoryWithOnePoint.trajectory.points[0].positions[i] - currentPositions[i]);
     double radiansPerSec = radians / 1.0; // todo
     trajectoryWithOnePoint.trajectory.points[0].velocities.push_back(radiansPerSec);
   }
-  currentPositions = trajectoryWithOnePoint.trajectory.points[0].positions;
+  //currentPositions = trajectoryWithOnePoint.trajectory.points[0].positions;
 
   jointGoals_pub.publish(trajectoryWithOnePoint);
 
-  currentTrajectoryPoint++;
-  currentTrajectoryPoint %= trajectory.trajectory.points.size();
 
   // Make sure we don't update too often
   last_publish_time = ros::Time::now();

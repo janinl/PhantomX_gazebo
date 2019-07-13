@@ -72,8 +72,8 @@ void calculateTrajectoryPoints()
 {
   setup();
   fWalking = true;
-  g_InControlState.TravelLength.z = -127;
-  g_InControlState.BodyPos.y = 100;
+  g_InControlState.TravelLength.z = -100; // max -127
+  g_InControlState.BodyPos.y = 80;
   GaitPosZ[1] = GaitPosZ[3] = GaitPosZ[5] = (g_InControlState.TravelLength.z/(short)g_InControlState.gaitCur.TLDivFactor);
 
   loop(true);
@@ -136,7 +136,7 @@ void calculateTrajectory()
     {
       //point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       //point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      time_from_start += ros::Duration(1.0);
+      time_from_start += ros::Duration(0.5);
       point.time_from_start = time_from_start;
       gaitTrajectory.trajectory.points.push_back(point);
     }
