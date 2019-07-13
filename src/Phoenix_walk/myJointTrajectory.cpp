@@ -2,10 +2,12 @@
 #include "actionlib/client/simple_action_client.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "sensor_msgs/JointState.h"
+#include "trajectory_msgs/JointTrajectory.h"
 
 using namespace std;
 
 ros::Publisher jointGoals_pub;
+ros::Publisher headController_pub;
 control_msgs::FollowJointTrajectoryGoal trajectory;
 int currentTrajectoryPoint = 0;
 ros::Time last_publish_time;
@@ -100,6 +102,12 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   jointGoals_pub.publish(trajectoryWithOnePoint);
 
 
+  // Different type for gazebo
+  //trajectory_msgs::JointTrajectory trajectoryWithOnePoint_forGazebo;
+  //trajectoryWithOnePoint_forGazebo = trajectoryWithOnePoint.trajectory;
+  headController_pub.publish(trajectoryWithOnePoint.trajectory);
+
+
   // Make sure we don't update too often
   last_publish_time = ros::Time::now();
 }
@@ -111,10 +119,11 @@ control_msgs::FollowJointTrajectoryGoal gaitTrajectory;
 void initRosPublishers(ros::NodeHandle &n)
 {
   jointGoals_pub = n.advertise<control_msgs::FollowJointTrajectoryGoal>("/webbie1/joint_goals", 1);
+  headController_pub = n.advertise<trajectory_msgs::JointTrajectory>("/phantomx/head_controller/command", 1);
 
   std::cout << "Waiting for topic connections to be ready..." << std::endl;
   // Wait for all topic connections to be ready
-  while (0 == jointGoals_pub.getNumSubscribers())
+  while (0 == jointGoals_pub.getNumSubscribers() && 0 == headController_pub.getNumSubscribers())
   {
     ROS_INFO("Waiting for subscribers to connect");
     ros::Duration(1.0).sleep();
