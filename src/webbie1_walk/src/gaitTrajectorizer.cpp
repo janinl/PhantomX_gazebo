@@ -93,6 +93,7 @@ void calculateTrajectoryPoints()
   loop(true);
   saveTrajectoryPoint();
 
+  return;
   // For debugging: make half gait go back and forth
   //int pointnums[8] = {0, 1, 2, 1, 0, 7, 6, 7};
   points[3] = points[1];

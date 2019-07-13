@@ -116,8 +116,12 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   }
 
   static ros::Duration last_time_from_start(0);
-  last_time_from_start += durationBetweenPoints;
-  trajectoryWithOnePoint.points[0].time_from_start = last_time_from_start;
+  //last_time_from_start += durationBetweenPoints;
+  //trajectoryWithOnePoint.points[0].time_from_start = last_time_from_start;
+  {
+    static ros::Time overallStartingTime = ros::Time::now();
+    trajectoryWithOnePoint.points[0].time_from_start = ros::Time::now() - overallStartingTime + durationBetweenPoints;
+  }
   //currentPositions = trajectoryWithOnePoint.points[0].positions;
 
   cout << "Sending trajectoryWithOnePoint: " << trajectoryWithOnePoint << endl;
@@ -153,7 +157,7 @@ int main(int argc, char **argv)
 
   initRosPublishers(n);
   ros::Subscriber jointTrajectoryCommandSub(n.subscribe("/webbie1/joint_trajectory/command", 1, jointTrajectoryCommandCallback));
-  ros::Subscriber jointStateSub(n.subscribe("/phantomx/joint_states", 1, jointStatesCallback));
+  ros::Subscriber jointStateSub(n.subscribe("/webbie1/joint_states", 1, jointStatesCallback));
 
   std::cout << "Starting" << std::endl;
 

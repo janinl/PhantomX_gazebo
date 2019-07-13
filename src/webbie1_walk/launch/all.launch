@@ -1,7 +1,10 @@
 <launch>
 
   <node name="webbie1_gaitTrajectorizer" pkg="webbie1_walk" type="webbie1_gaitTrajectorizer" output="screen" />
-  <node name="webbie1_myJointTrajectory" pkg="webbie1_walk" type="webbie1_myJointTrajectory" output="screen" />
+
+  <node name="webbie1_myJointTrajectory" pkg="webbie1_walk" type="webbie1_myJointTrajectory" output="screen" >
+    <remap from="/webbie1/joint_states" to="/phantomx/joint_states" />
+  </node>
 
 <!--
   // Gazebo

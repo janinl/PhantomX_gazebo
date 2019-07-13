@@ -2,7 +2,7 @@ phantomx:
   # Publish all joint states -----------------------------------
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 2
+    publish_rate: 5
   
   # Position/Velocity Controllers ---------------------------------------
   trajectory_controller_for_single_step:
