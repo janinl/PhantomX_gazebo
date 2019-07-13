@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "state_publisher");
   ros::NodeHandle n;
-  head_pub = n.advertise<trajectory_msgs::JointTrajectory>("/phantomx/head_controller/command", 0);
+  head_pub = n.advertise<trajectory_msgs::JointTrajectory>("/phantomx/trajectory_controller_for_single_step/command", 0);
 
   trajectory_msgs::JointTrajectory traj;
   trajectory_msgs::JointTrajectoryPoint points_n;

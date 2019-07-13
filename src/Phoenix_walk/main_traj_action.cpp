@@ -186,7 +186,7 @@ int main(int argc, char **argv)
   ros::init(argc, argv, "youbot_gazebo_message_wrapper");
   calculateTrajectory();
 
-  webbie1Trajectory = new actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>("phantomx/head_controller/follow_joint_trajectory", true);
+  webbie1Trajectory = new actionlib::SimpleActionClient<control_msgs::FollowJointTrajectoryAction>("phantomx/trajectory_controller_for_single_step/follow_joint_trajectory", true);
   std::cout << "Waiting for trajectory action controller..." << std::endl;
   webbie1Trajectory->waitForServer();
   std::cout << "Starting" << std::endl;

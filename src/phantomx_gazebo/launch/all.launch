@@ -22,7 +22,7 @@
   <rosparam file="$(find phantomx_control)/config/phantomx_control.yaml" command="load"/>
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/phantomx" args=" head_controller joint_state_controller"/>
+    output="screen" ns="/phantomx" args=" trajectory_controller_for_single_step joint_state_controller"/>
 
 
     
