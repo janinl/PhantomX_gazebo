@@ -160,7 +160,7 @@ void submitTrajectory(ros::Publisher &jointTrajectoryCommand_pub)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "main.traj.topic");
+  ros::init(argc, argv, "webbie1_gaitTrajectorizer");
 
   ros::NodeHandle n;
   ros::Publisher jointTrajectoryCommand_pub = n.advertise<control_msgs::FollowJointTrajectoryGoal>("/webbie1/joint_trajectory/command", 1);

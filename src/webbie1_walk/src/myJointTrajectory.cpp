@@ -7,6 +7,7 @@
 using namespace std;
 
 ros::Publisher jointGoals_pub;
+ros::Publisher gazeboTrajectoryControllerForSingleStep_pub;
 control_msgs::FollowJointTrajectoryGoal trajectory;
 int currentTrajectoryPoint = 0;
 ros::Time last_publish_time;
@@ -99,6 +100,7 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   //currentPositions = trajectoryWithOnePoint.points[0].positions;
 
   jointGoals_pub.publish(trajectoryWithOnePoint);
+  gazeboTrajectoryControllerForSingleStep_pub.publish(trajectoryWithOnePoint);
 
 
   // Make sure we don't update too often
@@ -110,10 +112,12 @@ vector<trajectory_msgs::JointTrajectoryPoint> points;
 void initRosPublishers(ros::NodeHandle &n)
 {
   jointGoals_pub = n.advertise<trajectory_msgs::JointTrajectory>("/webbie1/joint_goals", 1);
+  gazeboTrajectoryControllerForSingleStep_pub = n.advertise<trajectory_msgs::JointTrajectory>("/phantomx/trajectory_controller_for_single_step/command", 1);
 
   std::cout << "Waiting for topic connections to be ready..." << std::endl;
   // Wait for all topic connections to be ready
-  while (0 == jointGoals_pub.getNumSubscribers())
+  while (0 == jointGoals_pub.getNumSubscribers()
+      && 0 == gazeboTrajectoryControllerForSingleStep_pub.getNumSubscribers())
   {
     ROS_INFO("Waiting for subscribers to connect");
     ros::Duration(1.0).sleep();
@@ -122,7 +126,7 @@ void initRosPublishers(ros::NodeHandle &n)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "myJointTrajectory");
+  ros::init(argc, argv, "webbie1_myJointTrajectory");
   ros::NodeHandle n;
 
   initRosPublishers(n);
