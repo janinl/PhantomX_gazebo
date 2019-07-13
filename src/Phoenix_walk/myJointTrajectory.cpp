@@ -86,18 +86,18 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   currentTrajectoryPoint %= trajectory.trajectory.points.size();
 
 
-  control_msgs::FollowJointTrajectoryGoal trajectoryWithOnePoint = trajectory;
+  trajectory_msgs::JointTrajectory trajectoryWithOnePoint = trajectory.trajectory;
   //trajectoryWithOnePoint.trajectory.joint_names = trajectory.trajectory.joint_names;
-  trajectoryWithOnePoint.trajectory.points.clear();
-  trajectoryWithOnePoint.trajectory.points.push_back(trajectory.trajectory.points[currentTrajectoryPoint]);
+  trajectoryWithOnePoint.points.clear();
+  trajectoryWithOnePoint.points.push_back(trajectory.trajectory.points[currentTrajectoryPoint]);
   // Calculate updated velocity to reach each goal
-  trajectoryWithOnePoint.trajectory.points[0].velocities.clear();
-  for (int i=0; i<trajectoryWithOnePoint.trajectory.points[0].positions.size(); ++i) {
-    double radians = abs(trajectoryWithOnePoint.trajectory.points[0].positions[i] - currentPositions[i]);
+  trajectoryWithOnePoint.points[0].velocities.clear();
+  for (int i=0; i<trajectoryWithOnePoint.points[0].positions.size(); ++i) {
+    double radians = abs(trajectoryWithOnePoint.points[0].positions[i] - currentPositions[i]);
     double radiansPerSec = radians / 1.0; // todo
-    trajectoryWithOnePoint.trajectory.points[0].velocities.push_back(radiansPerSec);
+    trajectoryWithOnePoint.points[0].velocities.push_back(radiansPerSec);
   }
-  //currentPositions = trajectoryWithOnePoint.trajectory.points[0].positions;
+  //currentPositions = trajectoryWithOnePoint.points[0].positions;
 
   jointGoals_pub.publish(trajectoryWithOnePoint);
 
@@ -105,7 +105,7 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   // Different type for gazebo
   //trajectory_msgs::JointTrajectory trajectoryWithOnePoint_forGazebo;
   //trajectoryWithOnePoint_forGazebo = trajectoryWithOnePoint.trajectory;
-  headController_pub.publish(trajectoryWithOnePoint.trajectory);
+  headController_pub.publish(trajectoryWithOnePoint);
 
 
   // Make sure we don't update too often
@@ -114,11 +114,9 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
 
 vector<trajectory_msgs::JointTrajectoryPoint> points;
 
-control_msgs::FollowJointTrajectoryGoal gaitTrajectory;
-
 void initRosPublishers(ros::NodeHandle &n)
 {
-  jointGoals_pub = n.advertise<control_msgs::FollowJointTrajectoryGoal>("/webbie1/joint_goals", 1);
+  jointGoals_pub = n.advertise<trajectory_msgs::JointTrajectory>("/webbie1/joint_goals", 1);
   headController_pub = n.advertise<trajectory_msgs::JointTrajectory>("/phantomx/head_controller/command", 1);
 
   std::cout << "Waiting for topic connections to be ready..." << std::endl;
