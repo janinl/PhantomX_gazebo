@@ -1,18 +1,15 @@
 <launch>
 
-<!--
-//  <node name="phantomx_walker" pkg="phantomx_gazebo" type="walker.py" />
--->
 
 <!--
-  // Gazebo stuff
+  // Gazebo
 -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="worlds/empty.world"/>
     <arg name="paused" value="false"/>
   </include>
   
-  <param name="robot_description" textfile="$(find phantomx_description)/urdf/phantomx.urdf" />  
+  <param name="robot_description" textfile="$(find phantomx_description)/urdf/phantomx.urdf" />
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find phantomx_description)/urdf/phantomx.urdf -urdf -model phantomx -z 0.2" />
 
 <!--
@@ -22,10 +19,13 @@
   <rosparam file="$(find phantomx_control)/config/phantomx_control.yaml" command="load"/>
 
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/phantomx" args=" trajectory_controller_for_single_step joint_state_controller"/>
+    output="screen" ns="/phantomx" args=" trajectory_controller_for_single_step joint_state_controller" >
+    <remap from="/phantomx/trajectory_controller_for_single_step/command" to="/webbie1/joint_goals" />
+  </node>
 
 
-    
+
+
   <!-- rviz -->
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find viz)/config.rviz" />
