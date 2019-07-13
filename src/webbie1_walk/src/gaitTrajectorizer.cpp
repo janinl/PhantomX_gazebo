@@ -136,7 +136,7 @@ void calculateTrajectory()
     {
       //point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       //point.accelerations = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      time_from_start += ros::Duration(0.5);
+      time_from_start += ros::Duration(1.0);
       point.time_from_start = time_from_start;
       gaitTrajectory.trajectory.points.push_back(point);
     }

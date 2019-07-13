@@ -72,20 +72,37 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   if (noTrajectoryPointWasEverSent)
   {
     noTrajectoryPointWasEverSent = false;
+    cout << "noTrajectoryPointWasEverSent => Sending first point" << endl;
   }
   else {
     if (closeEnough)
-      cout << "Close enough! Moving to the next trajectory point.";
-    else
+      cout << "Close enough! Moving to the next trajectory point." << endl;
+    else {
+      cout << "Too far from goal. Keeping current goal point active." << endl;
       return;
+    }
   }
 
 #endif
 
+  int previousTrajectoryPoint = currentTrajectoryPoint;
   currentTrajectoryPoint++;
   currentTrajectoryPoint %= trajectory.trajectory.points.size();
+  cout << "Sending next trajectory point: " << currentTrajectoryPoint << endl;
 
 
+  // Calculate delay between the 2 points
+  ros::Duration durationBetweenPoints;
+  if (currentTrajectoryPoint==0)
+    durationBetweenPoints = trajectory.trajectory.points[currentTrajectoryPoint].time_from_start;
+  else
+    durationBetweenPoints = trajectory.trajectory.points[currentTrajectoryPoint].time_from_start - trajectory.trajectory.points[previousTrajectoryPoint].time_from_start;
+  cout << "durationBetweenPoints:" << durationBetweenPoints << endl;
+  double secondsBetweenPoints = durationBetweenPoints.toSec();
+  cout << "secondsBetweenPoints:" << secondsBetweenPoints << endl;
+
+
+  // Preparing topicmessage
   trajectory_msgs::JointTrajectory trajectoryWithOnePoint = trajectory.trajectory;
   //trajectoryWithOnePoint.trajectory.joint_names = trajectory.trajectory.joint_names;
   trajectoryWithOnePoint.points.clear();
@@ -94,11 +111,16 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   trajectoryWithOnePoint.points[0].velocities.clear();
   for (int i=0; i<trajectoryWithOnePoint.points[0].positions.size(); ++i) {
     double radians = abs(trajectoryWithOnePoint.points[0].positions[i] - currentPositions[i]);
-    double radiansPerSec = radians / 1.0; // todo
+    double radiansPerSec = radians / secondsBetweenPoints;
     trajectoryWithOnePoint.points[0].velocities.push_back(radiansPerSec);
   }
+
+  static ros::Duration last_time_from_start(0);
+  last_time_from_start += durationBetweenPoints;
+  trajectoryWithOnePoint.points[0].time_from_start = last_time_from_start;
   //currentPositions = trajectoryWithOnePoint.points[0].positions;
 
+  cout << "Sending trajectoryWithOnePoint: " << trajectoryWithOnePoint << endl;
   jointGoals_pub.publish(trajectoryWithOnePoint);
   gazeboTrajectoryControllerForSingleStep_pub.publish(trajectoryWithOnePoint);
 
