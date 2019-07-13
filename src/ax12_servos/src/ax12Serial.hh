@@ -19,7 +19,7 @@
 
 // This version hacked up by Kurt Eckhardt...
 
-//#include <Arduino.h> 
+//#include <Arduino.h>
 
 #ifndef ax12_h
 #define ax12_h
@@ -34,9 +34,9 @@
 /** Configuration **/
 
 #if defined(__ARDUINO_X86__)
-    // Currently assume using USB2AX or the like
+// Currently assume using USB2AX or the like
 #define PAX12Serial (void*)0   // no default yet... 
-#else    
+#else
 #define PAX12Serial &Serial1
 #endif
 
@@ -178,8 +178,11 @@ extern unsigned char dynamixel_bus_config[AX12_MAX_SERVOS];
 
 #define PlayTone(id, note) (ax12SetRegister(id, AX_BUZZER_INDEX, note))
 
+std::string getDxlCommResultsErrorString(int dxl_comm_result);
+std::string getDxlErrorsErrorString(uint8_t dxl_error);
 
-void ax12Get18ServosData();
+void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_t dxl_errors[18], int numberOfRetries[18], int &totalNumberOfRetries, int &servoIdIfError);
+void ax12EmergencyStop18Servos();
 
 
 #endif
