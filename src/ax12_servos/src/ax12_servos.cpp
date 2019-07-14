@@ -3,7 +3,8 @@
 #include "std_msgs/Float64.h"
 #include "std_msgs/UInt8MultiArray.h"
 #include "std_msgs/Int16MultiArray.h"
-#include "control_msgs/FollowJointTrajectoryAction.h"
+//#include "control_msgs/FollowJointTrajectoryAction.h"
+#include "trajectory_msgs/JointTrajectory.h"
 #include "sensor_msgs/JointState.h"
 #include <signal.h>
 
@@ -96,9 +97,14 @@ vector<string> jointNames = {
     "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"
 };
 
+const uint8_t servoIdsInRosOrder[18] = {
+    cLFCoxaPin, cLMCoxaPin, cLRCoxaPin, cRFCoxaPin, cRMCoxaPin, cRRCoxaPin,
+    cLFFemurPin, cLMFemurPin, cLRFemurPin, cRFFemurPin, cRMFemurPin, cRRFemurPin,
+    cLFTibiaPin, cLMTibiaPin, cLRTibiaPin, cRFTibiaPin, cRMTibiaPin, cRRTibiaPin
+};
 double lastPositions[8] = {0,0,0,0,0,0,0,0};
 
-void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr& msg)
+void callback_jointGoals(const trajectory_msgs::JointTrajectory::ConstPtr& msg)
 {
     std::cout << "callback_jointGoals" << std::endl;
     if (emergencyStopActive) {
@@ -106,27 +112,22 @@ void callback_jointGoals(const control_msgs::FollowJointTrajectoryGoal::ConstPtr
         return;
     }
     std::cout << "msg=" << *msg << std::endl;
-    assert(jointNames.size() == msg->trajectory.joint_names.size());
-    assert(msg->trajectory.points.size() == 1);
-    assert(msg->trajectory.points[0].positions.size() == 18);
-    assert(msg->trajectory.points[0].velocities.size() == 18);
+    assert(jointNames.size() == msg->joint_names.size());
+    assert(msg->points.size() == 1);
+    assert(msg->points[0].positions.size() == 18);
+    assert(msg->points[0].velocities.size() == 18);
 
     // convert to uint8[]
-    const uint8_t servoIds[18] = {
-        cLFCoxaPin, cLMCoxaPin, cLRCoxaPin, cRFCoxaPin, cRMCoxaPin, cRRCoxaPin,
-        cLFFemurPin, cLMFemurPin, cLRFemurPin, cRFFemurPin, cRMFemurPin, cRRFemurPin,
-        cLFTibiaPin, cLMTibiaPin, cLRTibiaPin, cRFTibiaPin, cRMTibiaPin, cRRTibiaPin
-    };
     uint8_t bVals2[18*4];
     int num_servos = 18;
     for (int i = 0; i < 18; ++i)
     {
-        assert(jointNames[i] == msg->trajectory.joint_names[i]);
-        convertPosAndSpeedTo4bytes(msg->trajectory.points[0].positions[i], msg->trajectory.points[0].velocities[i], &bVals2[4*i], lastPositions[i]);
-        lastPositions[i] = msg->trajectory.points[0].positions[i];
+        assert(jointNames[i] == msg->joint_names[i]);
+        convertPosAndSpeedTo4bytes(msg->points[0].positions[i], msg->points[0].velocities[i], &bVals2[4*i], lastPositions[i]);
+        lastPositions[i] = msg->points[0].positions[i];
     }
 
-    ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIds, num_servos);
+    ax12GroupSyncWriteDetailed(AX_GOAL_POSITION_L, 4, bVals2, servoIdsInRosOrder, num_servos);
 }
 /*
 void getAndPublishNextOf18ServosData()
@@ -209,12 +210,14 @@ void getAndPublishAll18ServosData()
 
         joint_states.name = jointNames;
         for (int i=0; i<18; ++i) {
+	    int servoIdMinus1 = servoIdsInRosOrder[i]-1;
+            //assert(jointNames[i] == msg->joint_names[i]);
             //double pos  = outData[8*i  ] + (outData[8*i+1] << 8);
-            double pos = convertBvalsToRad(&outData[8*i]);
+            double pos = convertBvalsToRad(&outData[8*servoIdMinus1]);
             //double vel  = outData[8*i+2] + ((outData[8*i+3] & 3) << 8);
-            double vel = convertBvalsToRadPerSec(&outData[8*i+2]);
+            double vel = convertBvalsToRadPerSec(&outData[8*servoIdMinus1+2]);
             //double load = outData[8*i+4] + ((outData[8*i+3] & 6) << 8);
-            double load = convertBvalsToRadPerSec(&outData[8*i+4]);
+            double load = convertBvalsToRadPerSec(&outData[8*servoIdMinus1+4]);
             joint_states.position.push_back(pos);
             joint_states.velocity.push_back(vel);
             joint_states.effort.push_back(load);
@@ -318,7 +321,7 @@ int main(int argc, char **argv)
         }
     */
     //ros::Subscriber allJointsPosAndSpeed(n.subscribe<std_msgs::UInt8MultiArray>("/phantomx/allJointsPosAndSpeed", 10, callback_allJointsPosAndSpeed));
-    joint_states_pub = n.advertise<sensor_msgs::JointState>("/phantomx/joint_states", 1);
+    joint_states_pub = n.advertise<sensor_msgs::JointState>("/webbie1/joint_states", 1);
     ros::Subscriber jointGoalsSub(n.subscribe("/webbie1/joint_goals", 1, callback_jointGoals));
 
     while (ros::ok() && !CtrlCPressed) {
