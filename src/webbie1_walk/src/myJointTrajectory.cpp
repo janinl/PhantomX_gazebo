@@ -19,7 +19,7 @@ void jointTrajectoryCommandCallback(const control_msgs::FollowJointTrajectoryGoa
   // {joint_names: ["j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr", "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr"], points: [ {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [1,0]}, {positions:[-1,0,-1,0,1,0, 0,0,0,0,0,0], time_from_start: [2,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [3,0]}, {positions:[0,-1,0,1,0,1, 0,0,0,0,0,0], time_from_start: [4,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [5,0]}, ]}
   std::cout << "jointTrajectoryCommandCallback" << *msg << std::endl;
   trajectory = *msg;
-  currentTrajectoryPoint = 0;
+  //currentTrajectoryPoint = 0;
 }
 
 void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
@@ -102,7 +102,7 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   cout << "secondsBetweenPoints:" << secondsBetweenPoints << endl;
 
 
-  // Preparing topicmessage
+  // Preparing topic message
   trajectory_msgs::JointTrajectory trajectoryWithOnePoint = trajectory.trajectory;
   //trajectoryWithOnePoint.trajectory.joint_names = trajectory.trajectory.joint_names;
   trajectoryWithOnePoint.points.clear();
@@ -120,9 +120,10 @@ void jointStatesCallback(const sensor_msgs::JointState::ConstPtr &msg)
   //trajectoryWithOnePoint.points[0].time_from_start = last_time_from_start;
   {
     static ros::Time overallStartingTime = ros::Time::now();
-    trajectoryWithOnePoint.points[0].time_from_start = ros::Time::now() - overallStartingTime + durationBetweenPoints;
+    trajectoryWithOnePoint.points[0].time_from_start = /*ros::Time::now() - overallStartingTime + */durationBetweenPoints;
   }
   //currentPositions = trajectoryWithOnePoint.points[0].positions;
+  trajectoryWithOnePoint.header.stamp = ros::Time::now();
 
   cout << "Sending trajectoryWithOnePoint: " << trajectoryWithOnePoint << endl;
   jointGoals_pub.publish(trajectoryWithOnePoint);

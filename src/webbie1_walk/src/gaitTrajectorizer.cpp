@@ -2,6 +2,7 @@
 #include "actionlib/client/simple_action_client.h"
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "sensor_msgs/JointState.h"
+#include "geometry_msgs/Twist.h"
 
 #include "mytypes.h"
 #include "ax12Serial.hh"
@@ -13,6 +14,10 @@
 #include "Input_Controller_raspi.h"
 #include "_Phoenix_Driver_AX12.h"
 #include "_Phoenix_Code.h"
+
+
+ros::Publisher jointTrajectoryCommand_pub;
+
 
 long unsigned int millis()
 {
@@ -141,7 +146,7 @@ void calculateTrajectory()
     }
     */
   auto time_from_start = ros::Duration(0);
-  for (int repeat = 0; repeat < 1; ++repeat)
+  for (int repeat = 0; repeat < 1; ++repeat) // not needed anymore, now that the downstream component repeats automatically
     for (auto point : points)
     {
       //point.velocities = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -168,12 +173,30 @@ void submitTrajectory(ros::Publisher &jointTrajectoryCommand_pub)
   jointTrajectoryCommand_pub.publish(gaitTrajectory);
 }
 
+void changeTrajectorySpeed(double metersPerSecond)
+{
+  auto time_from_start = ros::Duration(0);
+  for (auto &point : gaitTrajectory.trajectory.points)
+  {
+    time_from_start += ros::Duration(0.02/metersPerSecond); // 2cm per gait step
+    point.time_from_start = time_from_start;
+  }
+}
+
+void cmdVelCallback2(const geometry_msgs::Twist::ConstPtr& msg)
+{
+  std::cout << "cmdVelCallback2: " << msg << std::endl;
+  changeTrajectorySpeed(msg->linear.x);
+  submitTrajectory(jointTrajectoryCommand_pub);
+}
+
+
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "webbie1_gaitTrajectorizer");
 
   ros::NodeHandle n;
-  ros::Publisher jointTrajectoryCommand_pub = n.advertise<control_msgs::FollowJointTrajectoryGoal>("/webbie1/joint_trajectory/command", 1);
+  jointTrajectoryCommand_pub = n.advertise<control_msgs::FollowJointTrajectoryGoal>("/webbie1/joint_trajectory/command", 1);
 
   std::cout << "Waiting for topic connections to be ready..." << std::endl;
   // Wait for all topic connections to be ready
@@ -183,22 +206,13 @@ int main(int argc, char **argv)
     ros::Duration(1.0).sleep();
   }
 
-  ros::Subscriber jointStateSub(n.subscribe("/webbie1/joint_trajectory/state", 1, jointStateCallback2));
-
-
-  std::cout << "Starting" << std::endl;
   calculateTrajectory();
 
-  while (ros::ok())
-  {
-    submitTrajectory(jointTrajectoryCommand_pub);
+  ros::Subscriber jointStateSub(n.subscribe("/webbie1/joint_trajectory/state", 1, jointStateCallback2));
+  ros::Subscriber cmdVelSub(n.subscribe("/webbie2/cmd_vel", 1, cmdVelCallback2));
 
-    ros::spin();
-    return 0;
-
-  }
-
-  //	ros::spin();
+  std::cout << "Starting" << std::endl;
+  ros::spin();
 
   return 0;
 }

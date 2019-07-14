@@ -1,5 +1,11 @@
 <launch>
 
+  <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen" launch-prefix="gnome-terminal --disable-factory -- " required="true" >
+    <remap from="/cmd_vel" to="/webbie2/cmd_vel" />
+    <param name="speed" value="0.02" />
+    <param name="turn" value="0.314" />
+  </node>
+
   <node name="webbie1_gaitTrajectorizer" pkg="webbie1_walk" type="webbie1_gaitTrajectorizer" output="screen" />
 
   <node name="webbie1_myJointTrajectory" pkg="webbie1_walk" type="webbie1_myJointTrajectory" output="screen" >
