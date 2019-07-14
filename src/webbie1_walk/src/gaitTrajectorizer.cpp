@@ -65,6 +65,15 @@ void saveTrajectoryPoint()
     point1.positions[11 - LegIndex] = femur;
     point1.positions[17 - LegIndex] = tibia;
   }
+
+  // Fix for servoId 6 (thigh/femur FrontLeft) not going below position 231
+  const double PI = 3.14159265359;
+  double pos240inRad = (240-512)*(PI*150.0/180.0/512.0);
+  if (point1.positions[11-cLF] < pos240inRad) {
+    cout << "Adjusting target for servoId 6 problem" << endl;
+    point1.positions[11-cLF] = pos240inRad;
+  }
+
   points.push_back(point1);
 }
 
@@ -148,7 +157,7 @@ void calculateTrajectory()
       "j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr"};
 
   // fill message header and sent it out
-  gaitTrajectory.trajectory.header.frame_id = "whatever";
+  gaitTrajectory.trajectory.header.frame_id = "webbie1";
 }
 
 void submitTrajectory(ros::Publisher &jointTrajectoryCommand_pub)

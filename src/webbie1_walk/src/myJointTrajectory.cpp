@@ -161,14 +161,6 @@ int main(int argc, char **argv)
 
   std::cout << "Starting" << std::endl;
 
-  while (ros::ok())
-  {
-
-    ros::spin();
-    return 0;
-  }
-
-  //	ros::spin();
-
+  ros::spin();
   return 0;
 }
