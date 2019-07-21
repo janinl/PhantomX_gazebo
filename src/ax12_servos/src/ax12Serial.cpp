@@ -208,7 +208,6 @@ void ax12Init(long baud)
         ax12SetRegister( servoId, AX_GOAL_POSITION_L, dxl_present_position, 2);
     }
 
-
     // Set min voltage to a safe value for the Lipo battery
     // Debugging mode: make servos slow and weak
     for (int servoId=2; servoId<=19; servoId++)
@@ -220,15 +219,30 @@ void ax12Init(long baud)
         ax12SetRegister( servoId, ADDR_TORQUE_LIMIT, 900, 2 );
         ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
         //ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 104, 1 ); //at 12.2V battery, it triggered 11.4V alarm. This should be conservative as it's voltage under load
-        ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 60, 1 ); //reset to original value
+        //ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 60, 1 ); //reset to original value
     }
-    void setAllPunch(int val);
-    setAllPunch(4);
 
-    // Lock all addresses other than 0x18-0x23
+    // If servo2 is not locked, set punch for all and lock
+    int isLocked = ax12GetRegister( 2, AX_LOCK, 1 );
+    if (!isLocked) {
+      void setAllPunch(int val);
+      setAllPunch(4);
+
+      // Lock all addresses other than 0x18-0x23
+      for (int servoId=2; servoId<=19; servoId++)
+      {
+          ax12SetRegister( servoId, AX_LOCK, 1 );
+      }
+    }
+
+    // Check all locked
     for (int servoId=2; servoId<=19; servoId++)
     {
-        ax12SetRegister( servoId, AX_LOCK, 1 );
+      int isLocked = ax12GetRegister( servoId, AX_LOCK, 1 );
+      if (!isLocked) {
+        printf("Error: Servo %d isn't locked\n", servoId);
+        exit(1); 
+      }
     }
 }
 
