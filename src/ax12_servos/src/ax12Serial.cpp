@@ -224,6 +224,12 @@ void ax12Init(long baud)
     }
     void setAllPunch(int val);
     setAllPunch(4);
+
+    // Lock all addresses other than 0x18-0x23
+    for (int servoId=2; servoId<=19; servoId++)
+    {
+        ax12SetRegister( servoId, AX_LOCK, 1 );
+    }
 }
 
 void setAllPunch(int val)
