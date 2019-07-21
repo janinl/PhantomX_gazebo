@@ -151,7 +151,7 @@
 #ifdef OPT_CHECK_SERVO_RESET     // Try to find single servo that reset it's ID...
 #define cLFCoxaPin      19   //Front Left leg Hip Horizontal - Avoid servo 1
 #else
-#define cLFCoxaPin      1   //Front Left leg Hip Horizontal
+#define cLFCoxaPin      19 //LJ:was 1   //Front Left leg Hip Horizontal
 #endif
 #define cLFFemurPin     3   //Front Left leg Hip Vertical
 #define cLFTibiaPin     5   //Front Left leg Knee

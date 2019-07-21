@@ -275,7 +275,7 @@ int main(int argc, char **argv)
 #endif
 
     // Reset servo positions
-    int betterServoOrder[18] = {3,15,9,10,4,16, 5,6,11,12,17,18, 1,2,7,8,13,14};
+    int betterServoOrder[18] = {3,15,9,10,4,16, 5,6,11,12,17,18, 19,2,7,8,13,14};
     /*
     for (int i=0; i<18; ++i) {
         int servoId = betterServoOrder[i];

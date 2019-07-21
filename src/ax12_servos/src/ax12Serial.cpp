@@ -192,7 +192,7 @@ void ax12Init(long baud)
     usleep(500000);
 
     // Read all servo positions and set the goal positions to the same values to avoid a jump at the start
-    for (int servoId=1; servoId<=18; servoId++)
+    for (int servoId=2; servoId<=19; servoId++)
     {
         dxl_comm_result = packetHandler->read2ByteTxRx(portHandler, servoId, AX_PRESENT_POSITION_L, &dxl_present_position, &dxl_error);
         if (dxl_comm_result != COMM_SUCCESS)
@@ -211,7 +211,7 @@ void ax12Init(long baud)
 
     // Set min voltage to a safe value for the Lipo battery
     // Debugging mode: make servos slow and weak
-    for (int servoId=1; servoId<=18; servoId++)
+    for (int servoId=2; servoId<=19; servoId++)
     {
 #define ADDR_SET_MOVING_SPEED 32
 #define ADDR_LED 25
@@ -228,7 +228,7 @@ void ax12Init(long baud)
 
 void setAllPunch(int val)
 {
-    for (int servoId=1; servoId<=18; servoId++)
+    for (int servoId=2; servoId<=19; servoId++)
     {
 #define ADDR_PUNCH 48
         ax12SetRegister( servoId, ADDR_PUNCH, val, 2 );
@@ -243,7 +243,7 @@ void ax12Finish()
     if (portHandler==0) return;
 
     // Torque off
-    uint8_t servoIds[18] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+    uint8_t servoIds[18] = { 19,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
     ax12GroupSyncWrite(AX_TORQUE_ENABLE, 0, servoIds, 18);
 
     // Close port
@@ -332,8 +332,8 @@ void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_
     uint8_t length = 8;
     cout << "ax12Get18ServosData length=" << (int)length << endl;
 
-    for (int servoId=1; servoId<=18; ++servoId) {
-
+    for (int servoId=2; servoId<=19; ++servoId) {
+        int arrayPos = (servoId-1)%18;
 //cout << "ax12Get18ServosData servoId=" << servoId << " length=" << (int)length << endl;
 
         dxl_comm_results[servoId-1] = 0;
@@ -353,7 +353,7 @@ void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_
             int dxl_comm_result;
             uint8_t dxl_error;
 
-            dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, &outData[8*(servoId-1)], &dxl_error);
+            dxl_comm_result = packetHandler->readTxRx(portHandler, servoId, regstart, length, &outData[8*arrayPos], &dxl_error);
             //dxl_comm_result = packetHandler->readTx(portHandler, servoId, regstart, length);
             //dxl_comm_result = packetHandler->readRx(portHandler, servoId, length, val3, &dxl_error);
 
@@ -374,13 +374,13 @@ void ax12Get18ServosData(uint8_t outData[18*8], int dxl_comm_results[18], uint8_
             break;
         }
         printf(" => [ID:%02d] Pos=%04d Speed=%c%04d Load=%c%04d Volt=%03d Temp=%02d\n", servoId,
-               outData[8*(servoId-1)+0] + ((int)outData[8*(servoId-1)+1] << 8),
-               (outData[8*(servoId-1)+3] & 4)? '+' : '-',
-               outData[8*(servoId-1)+2] + (((int)outData[8*(servoId-1)+3] & 3) << 8),
-               (outData[8*(servoId-1)+4] & 4)? '+' : '-',
-               outData[8*(servoId-1)+4] + (((int)outData[8*(servoId-1)+5] & 3) << 8),
-               outData[8*(servoId-1)+6],
-               outData[8*(servoId-1)+7]
+               outData[8*arrayPos+0] + ((int)outData[8*arrayPos+1] << 8),
+               (outData[8*arrayPos+3] & 4)? '+' : '-',
+               outData[8*arrayPos+2] + (((int)outData[8*arrayPos+3] & 3) << 8),
+               (outData[8*arrayPos+4] & 4)? '+' : '-',
+               outData[8*arrayPos+4] + (((int)outData[8*arrayPos+5] & 3) << 8),
+               outData[8*arrayPos+6],
+               outData[8*arrayPos+7]
               );
     }
 }
@@ -416,7 +416,7 @@ void ax12EmergencyStop18Servos()
         1,0,
         1,0
     };
-    uint8_t servoIds[18] = { 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
+    uint8_t servoIds[18] = { 19,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 };
     ax12GroupSyncWriteDetailed(regstart, length, vals, servoIds, 18);
 }
 
