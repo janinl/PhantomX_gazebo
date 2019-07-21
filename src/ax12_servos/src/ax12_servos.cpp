@@ -210,14 +210,14 @@ void getAndPublishAll18ServosData()
 
         joint_states.name = jointNames;
         for (int i=0; i<18; ++i) {
-	    int servoIdMinus1 = servoIdsInRosOrder[i]-1;
+	    int posInArray = (servoIdsInRosOrder[i]-1)%18;
             //assert(jointNames[i] == msg->joint_names[i]);
             //double pos  = outData[8*i  ] + (outData[8*i+1] << 8);
-            double pos = convertBvalsToRad(&outData[8*servoIdMinus1]);
+            double pos = convertBvalsToRad(&outData[8*posInArray]);
             //double vel  = outData[8*i+2] + ((outData[8*i+3] & 3) << 8);
-            double vel = convertBvalsToRadPerSec(&outData[8*servoIdMinus1+2]);
+            double vel = convertBvalsToRadPerSec(&outData[8*posInArray+2]);
             //double load = outData[8*i+4] + ((outData[8*i+3] & 6) << 8);
-            double load = convertBvalsToRadPerSec(&outData[8*servoIdMinus1+4]);
+            double load = convertBvalsToRadPerSec(&outData[8*posInArray+4]);
             joint_states.position.push_back(pos);
             joint_states.velocity.push_back(vel);
             joint_states.effort.push_back(load);
@@ -318,7 +318,7 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
 
     vector<string> servoId2jointName;
-    servoId2jointName.resize(18+1);
+    servoId2jointName.resize(18+2);
     servoId2jointName[cRRCoxaPin] = "c1_rr";
     servoId2jointName[cRRFemurPin] = "thigh_rr";
     servoId2jointName[cRRTibiaPin] = "tibia_rr";
@@ -337,6 +337,7 @@ int main(int argc, char **argv)
     servoId2jointName[cLFCoxaPin] = "c1_lf";
     servoId2jointName[cLFFemurPin] = "thigh_lf";
     servoId2jointName[cLFTibiaPin] = "tibia_lf";
+    servoId2jointName[1] = servoId2jointName[19];
     /*
         vector<ros::Subscriber> joint_channels;// = n.subscribe("/hexapd/hj_.../", 10, callback);
         joint_channels.resize(1); // adding empty space for unused servo 0
