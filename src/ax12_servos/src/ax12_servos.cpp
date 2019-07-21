@@ -275,14 +275,44 @@ int main(int argc, char **argv)
 #endif
 
     // Reset servo positions
-    int betterServoOrder[18] = {3,4,9,10,15,16, 5,6,11,12,17,18, 1,2,7,8,13,14};
+    int betterServoOrder[18] = {3,15,9,10,4,16, 5,6,11,12,17,18, 1,2,7,8,13,14};
+    /*
     for (int i=0; i<18; ++i) {
         int servoId = betterServoOrder[i];
         ax12SetRegister(servoId,AX_GOAL_POSITION_L,512,2);
         if (i==5 || i==11)
             sleep(1);
     }
-
+    */
+    //move c1 straigt + lift thighs up
+    // lift thighs very high
+    for (int i=0; i<3; ++i) {
+        int servoId = betterServoOrder[i];
+        ax12SetRegister(servoId,AX_GOAL_POSITION_L,512-150,2);
+    }
+    for (int i=3; i<6; ++i) {
+        int servoId = betterServoOrder[i];
+        ax12SetRegister(servoId,AX_GOAL_POSITION_L,512+150,2);
+    }
+    sleep(1);
+    // c1s middle
+    for (int i=12; i<18; ++i) {
+        int servoId = betterServoOrder[i];
+        ax12SetRegister(servoId,AX_GOAL_POSITION_L,512,2);
+    }
+    sleep(2);
+    // tibias middle
+    for (int i=6; i<12; ++i) {
+        int servoId = betterServoOrder[i];
+        ax12SetRegister(servoId,AX_GOAL_POSITION_L,512,2);
+    }
+    sleep(1);
+    // thighs middle 
+    for (int i=0; i<6; ++i) {
+        int servoId = betterServoOrder[i];
+        ax12SetRegister(servoId,AX_GOAL_POSITION_L,512,2);
+    }
+    sleep(2);
 
     ros::init(argc, argv, "ax12_servos", ros::init_options::NoSigintHandler);
     ros::NodeHandle n;

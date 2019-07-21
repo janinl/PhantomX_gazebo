@@ -219,7 +219,8 @@ void ax12Init(long baud)
         ax12SetRegister( servoId, ADDR_LED, 1 );
         ax12SetRegister( servoId, ADDR_TORQUE_LIMIT, 900, 2 );
         ax12SetRegister( servoId, ADDR_SET_MOVING_SPEED, 50, 2 );
-        ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 104, 1 ); //at 12.2V battery, it triggered 11.4V alarm. This should be conservative as it's voltage under load
+        //ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 104, 1 ); //at 12.2V battery, it triggered 11.4V alarm. This should be conservative as it's voltage under load
+        ax12SetRegister( servoId, AX_DOWN_LIMIT_VOLTAGE, 60, 1 ); //reset to original value
     }
     void setAllPunch(int val);
     setAllPunch(4);
