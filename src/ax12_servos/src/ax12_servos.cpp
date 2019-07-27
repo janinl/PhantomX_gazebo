@@ -8,8 +8,8 @@
 #include "sensor_msgs/JointState.h"
 #include <signal.h>
 
-#include "../../Phoenix_walk/mytypes.h"
-#include "../../Phoenix_walk/Hex_Cfg.h"
+#include "../../webbie1_walk/src/fromPhoenix/mytypes.h"
+#include "../../webbie1_walk/src/fromPhoenix/Hex_Cfg.h"
 
 vector<ros::Publisher> servo_status_channels;
 ros::Publisher joint_states_pub;
