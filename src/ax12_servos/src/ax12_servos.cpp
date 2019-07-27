@@ -226,14 +226,14 @@ void getAndPublishAll18ServosData()
     }
 }
 
-/*
+
 long unsigned int millis() {
     struct timeval tp;
     gettimeofday(&tp, NULL);
     long unsigned int ms = tp.tv_sec * 1000 + tp.tv_usec / 1000;
     return ms;
 }
-*/
+
 
 bool CtrlCPressed = false;
 void signalHandler(int sig)
@@ -263,9 +263,41 @@ int main(int argc, char **argv)
               ax12GetRegister(servoId,AX_PRESENT_POSITION_L,8);
             }
         */
-        ax12Get18ServosData();
+	{
+	    uint8_t outData[18*8];
+    int dxl_comm_results[18];
+    uint8_t dxl_errors[18];
+    int numberOfRetries[18];
+    int totalNumberOfRetries;
+    int servoIdIfError;
+
+    ax12Get18ServosData(outData, dxl_comm_results, dxl_errors, numberOfRetries, totalNumberOfRetries, servoIdIfError);
+    if (servoIdIfError>0) {
+        // Immediately stop as many servos as possible
+        cerr << "Big error detected: Could not read from servo " << servoIdIfError << ". Stopping all servos." << endl;
+        emergencyStopActive = true;
+        ax12EmergencyStop18Servos();
+        cerr << "Big error detected: Could not read from servo " << servoIdIfError << ". Tried to stop all servos." << endl;
+        cerr << "dxl_comm_results[servoIdIfError]=" << dxl_comm_results[servoIdIfError-1] << endl;
+        cerr << "dxl_errors[servoIdIfError]=" << (unsigned int)dxl_errors[servoIdIfError-1] << endl;
+    }
+    if (totalNumberOfRetries>0) {
+        // Temporary code, to check if this ever happens
+        cerr << "Retries detected: " << totalNumberOfRetries << " total retries. Stopping all servos." << endl;
+        emergencyStopActive = true;
+        ax12EmergencyStop18Servos();
+        for (int i=0; i<18; ++i) {
+            if (numberOfRetries[i]>0) {
+                cerr << "numberOfRetries[" << i << "]=" << numberOfRetries[i] << endl;
+                cerr << "dxl_comm_results[" << i << "]=" << getDxlCommResultsErrorString(dxl_comm_results[i]) << endl;
+                cerr << "dxl_errors[" << i << "]=" << getDxlErrorsErrorString(dxl_errors[i]) << endl;
+            }
+        }
+    }
+	}
 
         if (currentTime >= lastTime+10000) {
+            cout << "==========================================================================" << endl;
             cout << " *** Times per second: " << count*0.1 << endl;
             sleep(1);
             count = 0;
