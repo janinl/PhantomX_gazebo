@@ -1,6 +1,6 @@
 UBUNTU:
 
-catkin_make --only-pkg-with-deps phantomx_gazebo all_joints_to_state_publisher
+catkin_make --only-pkg-with-deps phantomx_gazebo webbie1_walk #all_joints_to_state_publisher
 
 
 
@@ -11,4 +11,4 @@ git clone https://github.com/GT-RAIL/rosauth.git
 git clone https://github.com/RobotWebTools/rosbridge_suite.git
 cd ..
 #catkin_make --only-pkg-with-deps ax12_servos rosbridge_server
-catkin_make -DCMAKE_BUILD_TYPE=Debug --only-pkg-with-deps ax12_servos
+catkin_make -DCMAKE_BUILD_TYPE=Debug --only-pkg-with-deps ax12_servos webbie1_walk
