@@ -133,7 +133,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(webbie1_gaitTrajectorizer src/gaitTrajectorizer.cpp src/fromPhoenix/BioloidEX.cpp src/fromPhoenix/ax12Serial.cpp)
+add_executable(webbie1_gaitTrajectorizer src/gaitTrajectorizer.cpp)
 add_executable(webbie1_myJointTrajectory src/myJointTrajectory.cpp)
 
 ## Rename C++ executable without prefix

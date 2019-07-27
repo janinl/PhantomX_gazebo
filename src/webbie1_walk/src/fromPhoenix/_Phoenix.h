@@ -106,34 +106,12 @@ extern boolean g_fDBGHandleError;
 extern const byte cTarsLength[] PROGMEM;
 #endif
 
-#ifdef OPT_BACKGROUND_PROCESS
-#define DoBackgroundProcess()   g_ServoDriver.BackgroundProcess()
-#else
-#define DoBackgroundProcess()   
-#endif
-
 #ifdef DEBUG_IOPINS
 #define DebugToggle(pin)  {digitalWrite(pin, !digitalRead(pin));}
 #define DebugWrite(pin, state) {digitalWrite(pin, state);}
 #else
 #define DebugToggle(pin)  {;}
 #define DebugWrite(pin, state) {;}
-#endif
-
-
-
-#ifdef __AVR__
-#if not defined(UBRR1H)
-#if cSSC_IN != 0
-extern SoftwareSerial SSCSerial;
-#endif
-#endif
-#endif
-#if defined(__PIC32MX__)
-#if defined F
-#undef F
-#endif
-#define F(X) (X)
 #endif
 
 
@@ -257,74 +235,13 @@ typedef struct _InControlState {
 } 
 INCONTROLSTATE;
 
-//==============================================================================
-//==============================================================================
-// Define the class(s) for Servo Drivers.
-//==============================================================================
-//==============================================================================
-class ServoDriver {
-public:
-  void Init(void);
 
-  word GetBatteryVoltage(void);
-
-#ifdef OPT_GPPLAYER    
-  inline boolean  FIsGPEnabled(void) {
-    return _fGPEnabled;
-  };
-  boolean         FIsGPSeqDefined(uint8_t iSeq);
-  inline boolean  FIsGPSeqActive(void) {
-    return _fGPActive;
-  };
-  void            GPStartSeq(uint8_t iSeq);  // 0xff - says to abort...
-  void            GPPlayer(void);
-  uint8_t         GPNumSteps(void);          // How many steps does the current sequence have
-  uint8_t         GPCurStep(void);           // Return which step currently on... 
-  void            GPSetSpeedMultiplyer(short sm) ;      // Set the Speed multiplier (100 is default)
-#endif
-  void            BeginServoUpdate(void);    // Start the update 
-#ifdef c4DOF
-  void            OutputServoInfoForLeg(byte LegIndex, short sCoxaAngle1, short sFemurAngle1, short sTibiaAngle1, short sTarsAngle1);
-#else
-  void            OutputServoInfoForLeg(byte LegIndex, short sCoxaAngle1, short sFemurAngle1, short sTibiaAngle1);
-#endif    
-#ifdef cTurretRotPin
-  void            OutputServoInfoForTurret(short sRotateAngle1, short sTiltAngle1);
-#endif
-  void            CommitServoDriver(word wMoveTime);
-  void            FreeServos(void);
-  
-  void            IdleTime(void);        // called when the main loop when the robot is not on
-
-  // Allow for background process to happen...
-#ifdef OPT_BACKGROUND_PROCESS
-  void            BackgroundProcess(void);
-#endif    
-
-#ifdef OPT_TERMINAL_MONITOR  
-  void            ShowTerminalCommandList(void);
-  boolean         ProcessTerminalCommand(byte *psz, byte bLen);
-#endif
-
-private:
-
-#ifdef OPT_GPPLAYER    
-  boolean _fGPEnabled;     // IS GP defined for this servo driver?
-  boolean _fGPActive;      // Is a sequence currently active - May change later when we integrate in sequence timing adjustment code
-  uint8_t    _iSeq;        // current sequence we are running
-  short    _sGPSM;        // Speed multiplier +-200 
-#endif
-
-} 
-;   
 
 //==============================================================================
 //==============================================================================
 // Define global class objects
 //==============================================================================
 //==============================================================================
-extern ServoDriver      g_ServoDriver;           // our global servo driver class
-extern InputController  g_InputController;       // Our Input controller 
 extern INCONTROLSTATE   g_InControlState;        // State information that controller changes
 
 

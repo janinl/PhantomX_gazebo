@@ -5,14 +5,11 @@
 #include "geometry_msgs/Twist.h"
 
 #include "mytypes.h"
-#include "ax12Serial.hh"
 #define DEFINE_HEX_GLOBALS
 #define HEXMODE // default to hex mode
 #include "Hex_Cfg.h"
 #undef SOUND_PIN
 #include "_Phoenix.h"
-#include "Input_Controller_raspi.h"
-#include "_Phoenix_Driver_AX12.h"
 #include "_Phoenix_Code.h"
 
 
@@ -165,14 +162,6 @@ void calculateTrajectory()
   gaitTrajectory.trajectory.header.frame_id = "webbie1";
 }
 
-void submitTrajectory(ros::Publisher &jointTrajectoryCommand_pub)
-{
-  // rostopic pub -1 /phantomx/trajectory_controller_for_single_step/command trajectory_msgs/JointTrajectory '{joint_names: ["j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr", "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr"], points: [ {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [1,0]}, {positions:[-1,0,-1,0,1,0, 0,0,0,0,0,0], time_from_start: [2,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [3,0]}, {positions:[0,-1,0,1,0,1, 0,0,0,0,0,0], time_from_start: [4,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [5,0]}, ]}'
-  std::cout << "Sending trajectory" << std::endl;
-  gaitTrajectory.trajectory.header.stamp = ros::Time::now();
-  jointTrajectoryCommand_pub.publish(gaitTrajectory);
-}
-
 void changeTrajectorySpeed(double metersPerSecond)
 {
   auto time_from_start = ros::Duration(0);
@@ -181,6 +170,14 @@ void changeTrajectorySpeed(double metersPerSecond)
     time_from_start += ros::Duration(0.02/metersPerSecond); // 2cm per gait step
     point.time_from_start = time_from_start;
   }
+}
+
+void submitTrajectory(ros::Publisher &jointTrajectoryCommand_pub)
+{
+  // rostopic pub -1 /phantomx/trajectory_controller_for_single_step/command trajectory_msgs/JointTrajectory '{joint_names: ["j_tibia_lf", "j_tibia_lm", "j_tibia_lr", "j_tibia_rf", "j_tibia_rm", "j_tibia_rr", "j_thigh_lf", "j_thigh_lm", "j_thigh_lr", "j_thigh_rf", "j_thigh_rm", "j_thigh_rr"], points: [ {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [1,0]}, {positions:[-1,0,-1,0,1,0, 0,0,0,0,0,0], time_from_start: [2,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [3,0]}, {positions:[0,-1,0,1,0,1, 0,0,0,0,0,0], time_from_start: [4,0]}, {positions:[0,0,0,0,0,0,0,0,0,0,0,0], time_from_start: [5,0]}, ]}'
+  std::cout << "Sending trajectory" << std::endl;
+  gaitTrajectory.trajectory.header.stamp = ros::Time::now();
+  jointTrajectoryCommand_pub.publish(gaitTrajectory);
 }
 
 void cmdVelCallback2(const geometry_msgs::Twist::ConstPtr& msg)

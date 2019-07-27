@@ -25,17 +25,7 @@
 //=============================================================================
 
 #define DEFINE_HEX_GLOBALS
-#if ARDUINO>99
-#include <Arduino.h>
-#else
-#endif
-//#include <EEPROM.h>
-//#include <PS2X_lib.h>
-#include <pins_arduino.h>
-//#include <SoftwareSerial.h>        
 #define BalanceDivFactor CNT_LEGS    //;Other values than 6 can be used, testing...CAUTION!! At your own risk ;)
-//#include <Wire.h>
-//#include <I2CEEProm.h>
 
 // Only compile in Debug code if we have something to output to
 #ifdef DBGSerial
@@ -280,224 +270,6 @@ const short cInitPosZ[] PROGMEM = {
   cRRInitPosZ, cRMInitPosZ, cRFInitPosZ, cLRInitPosZ, cLMInitPosZ, cLFInitPosZ};
 
 //=============================================================================
-#elif defined(OCTOMODE)
-// Octopods
-// Servo Horn offsets
-#ifdef cRRFemurHornOffset1   // per leg configuration
-static const short cFemurHornOffset1[] PROGMEM = {
-  cRRFemurHornOffset1, cRMRFemurHornOffset1, cRMFFemurHornOffset1, cRFFemurHornOffset1, cLRFemurHornOffset1, cLMRFemurHornOffset1, cLMFFemurHornOffset1, cLFFemurHornOffset1};
-#define CFEMURHORNOFFSET1(LEGI) ((short)pgm_read_word(&cFemurHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cFemurHornOffset1
-#define cFemurHornOffset1  0
-#endif
-#define CFEMURHORNOFFSET1(LEGI)  (cFemurHornOffset1)
-#endif
-
-#ifdef cRRTibiaHornOffset1   // per leg configuration
-static const short cTibiaHornOffset1[] PROGMEM = {
-  cRRTibiaHornOffset1, cRMRTibiaHornOffset1, cRMFTibiaHornOffset1, cRFTibiaHornOffset1, cLRTibiaHornOffset1, cLMRTibiaHornOffset1, cLMFTibiaHornOffset1, cLFTibiaHornOffset1};
-#define CTIBIAHORNOFFSET1(LEGI) ((short)pgm_read_word(&cTibiaHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cTibiaHornOffset1
-#define cTibiaHornOffset1  0
-#endif
-#define CTIBIAHORNOFFSET1(LEGI)  (cTibiaHornOffset1)
-#endif
-
-#ifdef c4DOF
-#ifdef cRRTarsHornOffset1   // per leg configuration
-static const short cTarsHornOffset1[] PROGMEM = {
-  cRRTarsHornOffset1,  cRMRTarsHornOffset1,  cRMFTarsHornOffset1,  cRFTarsHornOffset1,  cLRTarsHornOffset1,  cLMRTarsHornOffset1,  cLMFTarsHornOffset1,  cLFTarsHornOffset1};
-#define CTARSHORNOFFSET1(LEGI) ((short)pgm_read_word(&cTarsHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cTarsHornOffset1
-#define cTarsHornOffset1  0
-#endif
-#define CTARSHORNOFFSET1(LEGI)  cTarsHornOffset1
-#endif
-#endif
-
-//Min / Max values
-#ifndef SERVOS_DO_MINMAX
-const short cCoxaMin1[] PROGMEM = {
-  cRRCoxaMin1,  cRMRCoxaMin1,  cRMFCoxaMin1,  cRFCoxaMin1,  cLRCoxaMin1,  cLMRCoxaMin1,   cLMFCoxaMin1,  cLFCoxaMin1};
-const short cCoxaMax1[] PROGMEM = {
-  cRRCoxaMax1,  cRMRCoxaMax1,  cRMFCoxaMax1,  cRFCoxaMax1,  cLRCoxaMax1,  cLMRCoxaMax1,   cLMFCoxaMax1,  cLFCoxaMax1};
-const short cFemurMin1[] PROGMEM ={
-  cRRFemurMin1, cRMRFemurMin1, cRMFFemurMin1, cRFFemurMin1, cLRFemurMin1, cLMRFemurMin1,  cLMFFemurMin1, cLFFemurMin1};
-const short cFemurMax1[] PROGMEM ={
-  cRRFemurMax1, cRMRFemurMax1, cRMFFemurMax1, cRFFemurMax1, cLRFemurMax1, cLMRFemurMax1,  cLMFFemurMax1, cLFFemurMax1};
-const short cTibiaMin1[] PROGMEM ={
-  cRRTibiaMin1, cRMRTibiaMin1, cRMFTibiaMin1, cRFTibiaMin1, cLRTibiaMin1, cLMRTibiaMin1,  cLMFTibiaMin1, cLFTibiaMin1};
-const short cTibiaMax1[] PROGMEM = {
-  cRRTibiaMax1, cRMRTibiaMax1, cRMFTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLMRTibiaMax1,  cLMFTibiaMax1, cLFTibiaMax1};
-
-#ifdef c4DOF
-const short cTarsMin1[] PROGMEM = {
-  cRRTarsMin1, cRMRTarsMin1, cRMFTarsMin1, cRFTarsMin1, cLRTarsMin1, cLMRTarsMin1, cLMFTarsMin1, cLFTarsMin1};
-const short cTarsMax1[] PROGMEM = {
-  cRRTarsMax1, cRMRTarsMax1, cRMFTarsMax1, cRFTarsMax1, cLRTarsMax1, cLMRTarsMax1, cLMFTarsMax1, cLFTarsMax1};
-#endif
-#endif
-
-// Servo inverse direction
-const bool cCoxaInv[] = {cRRCoxaInv, cRMRCoxaInv, cRMFCoxaInv, cRFCoxaInv, cLRCoxaInv, cLMRCoxaInv, cLMFCoxaInv, cLFCoxaInv};
-bool cFemurInv[] = {cRRFemurInv, cRMRFemurInv, cRMFFemurInv, cRFFemurInv, cLRFemurInv, cLMRFemurInv, cLMFFemurInv, cLFFemurInv};
-const bool cTibiaInv[] = {cRRTibiaInv, cRMRTibiaInv, cRMFTibiaInv, cRFTibiaInv, cLRTibiaInv, cLMRTibiaInv, cLMFTibiaInv, cLFTibiaInv};
-
-#ifdef c4DOF
-const boolean cTarsInv[] = {cRRTarsInv, cRMRTarsInv, cRMFTarsInv, cRFTarsInv, cLRTarsInv, cLMRTarsInv, cLMFTarsInv, cLFTarsInv};
-#endif  
-
-//Leg Lengths
-const byte cCoxaLength[] PROGMEM = {
-  cRRCoxaLength,  cRMRCoxaLength, cRMFCoxaLength,  cRFCoxaLength,  cLRCoxaLength,  cLMRCoxaLength, cLMFCoxaLength,  cLFCoxaLength};
-const byte cFemurLength[] PROGMEM = {
-  cRRFemurLength, cRMRFemurLength, cRMFFemurLength, cRFFemurLength, cLRFemurLength, cLMRFemurLength, cLMFFemurLength, cLFFemurLength};
-const byte cTibiaLength[] PROGMEM = {
-  cRRTibiaLength, cRMRTibiaLength, cRMFTibiaLength, cRFTibiaLength, cLRTibiaLength, cLMRTibiaLength, cLMFTibiaLength, cLFTibiaLength};
-#ifdef c4DOF
-const byte cTarsLength[] PROGMEM = {
-  cRRTarsLength, cRMRTarsLength, cRMFTarsLength, cRFTarsLength, cLRTarsLength, cLMRTarsLength, cLMFTarsLength, cLFTarsLength};
-#endif
-
-
-//Body Offsets [distance between the center of the body and the center of the coxa]
-const short cOffsetX[] PROGMEM = {
-  cRROffsetX, cRMROffsetX, cRMFOffsetX, cRFOffsetX, cLROffsetX, cLMROffsetX, cLMFOffsetX, cLFOffsetX};
-const short cOffsetZ[] PROGMEM = {
-  cRROffsetZ, cRMROffsetZ, cRMFOffsetZ, cRFOffsetZ, cLROffsetZ, cLMROffsetZ, cLMFOffsetZ, cLFOffsetZ};
-
-//Default leg angle
-const short cCoxaAngle1[] PROGMEM = {
-  cRRCoxaAngle1, cRMRCoxaAngle1, cRMFCoxaAngle1, cRFCoxaAngle1, cLRCoxaAngle1, cLMRCoxaAngle1, cLMFCoxaAngle1, cLFCoxaAngle1};
-
-#ifdef cRRInitCoxaAngle1    // We can set different angles for the legs than just where they servo horns are set...
-const short cCoxaInitAngle1[] PROGMEM = {
-  cRRInitCoxaAngle1, cRMRInitCoxaAngle1, cRMFInitCoxaAngle1, cRFInitCoxaAngle1, cLRInitCoxaAngle1, cLMRInitCoxaAngle1, cLMFInitCoxaAngle1, cLFInitCoxaAngle1};
-#endif
-
-//Start positions for the leg
-const short cInitPosX[] PROGMEM = {
-  cRRInitPosX, cRMRInitPosX, cRMFInitPosX, cRFInitPosX, cLRInitPosX, cLMRInitPosX, cLMFInitPosX, cLFInitPosX};
-const short cInitPosY[] PROGMEM = {
-  cRRInitPosY, cRMRInitPosY, cRMFInitPosY, cRFInitPosY, cLRInitPosY, cLMRInitPosY, cLMFInitPosY, cLFInitPosY};
-const short cInitPosZ[] PROGMEM = {
-  cRRInitPosZ, cRMRInitPosZ, cRMFInitPosZ, cRFInitPosZ, cLRInitPosZ, cLMRInitPosZ, cLMFInitPosZ, cLFInitPosZ};
-
-//=============================================================================
-#else
-// Quads...
-// Servo Horn offsets
-#ifdef cRRFemurHornOffset1   // per leg configuration
-static const short cFemurHornOffset1[] PROGMEM = {
-  cRRFemurHornOffset1, cRFFemurHornOffset1, cLRFemurHornOffset1, cLFFemurHornOffset1};
-#define CFEMURHORNOFFSET1(LEGI) ((short)pgm_read_word(&cFemurHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cFemurHornOffset1
-#define cFemurHornOffset1  0
-#endif
-#define CFEMURHORNOFFSET1(LEGI)  (cFemurHornOffset1)
-#endif
-
-#ifdef cRRTibiaHornOffset1   // per leg configuration
-static const short cTibiaHornOffset1[] PROGMEM = {
-  cRRTibiaHornOffset1, cRFTibiaHornOffset1, cLRTibiaHornOffset1, cLFTibiaHornOffset1};
-#define CTIBIAHORNOFFSET1(LEGI) ((short)pgm_read_word(&cTibiaHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cTibiaHornOffset1
-#define cTibiaHornOffset1  0
-#endif
-#define CTIBIAHORNOFFSET1(LEGI)  (cTibiaHornOffset1)
-#endif
-
-
-
-#ifdef c4DOF
-#ifdef cRRTarsHornOffset1   // per leg configuration
-static const short cTarsHornOffset1[] PROGMEM = {
-  cRRTarsHornOffset1, cRFTarsHornOffset1,  cLRTarsHornOffset1, cLFTarsHornOffset1};
-#define CTARSHORNOFFSET1(LEGI) ((short)pgm_read_word(&cTarsHornOffset1[LEGI]))
-#else   // Fixed per leg, if not defined 0
-#ifndef cTarsHornOffset1
-#define cTarsHornOffset1  0
-#endif
-#define CTARSHORNOFFSET1(LEGI)  cTarsHornOffset1
-#endif
-#endif
-
-//Min / Max values
-#ifndef SERVOS_DO_MINMAX
-const short cCoxaMin1[] PROGMEM = {
-  cRRCoxaMin1,  cRFCoxaMin1,  cLRCoxaMin1,  cLFCoxaMin1};
-const short cCoxaMax1[] PROGMEM = {
-  cRRCoxaMax1,  cRFCoxaMax1,  cLRCoxaMax1,  cLFCoxaMax1};
-const short cFemurMin1[] PROGMEM ={
-  cRRFemurMin1, cRFFemurMin1, cLRFemurMin1, cLFFemurMin1};
-const short cFemurMax1[] PROGMEM ={
-  cRRFemurMax1, cRFFemurMax1, cLRFemurMax1, cLFFemurMax1};
-const short cTibiaMin1[] PROGMEM ={
-  cRRTibiaMin1, cRFTibiaMin1, cLRTibiaMin1, cLFTibiaMin1};
-const short cTibiaMax1[] PROGMEM = {
-  cRRTibiaMax1, cRFTibiaMax1, cLRTibiaMax1, cLFTibiaMax1};
-
-#ifdef c4DOF
-const short cTarsMin1[] PROGMEM = {
-  cRRTarsMin1, cRFTarsMin1, cLRTarsMin1, cLFTarsMin1};
-const short cTarsMax1[] PROGMEM = {
-  cRRTarsMax1, cRFTarsMax1, cLRTarsMax1, cLFTarsMax1};
-#endif
-#endif
-
-// Servo inverse direction
-const bool cCoxaInv[] = {cRRCoxaInv, cRFCoxaInv, cLRCoxaInv, cLFCoxaInv};
-bool cFemurInv[] = {cRRFemurInv, cRFFemurInv, cLRFemurInv, cLFFemurInv};
-const bool cTibiaInv[] = {cRRTibiaInv, cRFTibiaInv, cLRTibiaInv, cLFTibiaInv};
-
-#ifdef c4DOF
-const boolean cTarsInv[] = {
-    cRRTarsInv, cRFTarsInv, cLRTarsInv, cLFTarsInv};
-#endif  
-    
-
-
-//Leg Lengths
-const byte cCoxaLength[] PROGMEM = {
-  cRRCoxaLength,  cRFCoxaLength,  cLRCoxaLength,  cLFCoxaLength};
-const byte cFemurLength[] PROGMEM = {
-  cRRFemurLength, cRFFemurLength, cLRFemurLength, cLFFemurLength};
-const byte cTibiaLength[] PROGMEM = {
-  cRRTibiaLength, cRFTibiaLength, cLRTibiaLength, cLFTibiaLength};
-#ifdef c4DOF
-const byte cTarsLength[] PROGMEM = {
-  cRRTarsLength, cRFTarsLength, cLRTarsLength, cLFTarsLength};
-#endif
-
-
-//Body Offsets [distance between the center of the body and the center of the coxa]
-const short cOffsetX[] PROGMEM = {
-  cRROffsetX, cRFOffsetX, cLROffsetX, cLFOffsetX};
-const short cOffsetZ[] PROGMEM = {
-  cRROffsetZ, cRFOffsetZ, cLROffsetZ, cLFOffsetZ};
-
-//Default leg angle
-const short cCoxaAngle1[] PROGMEM = {
-  cRRCoxaAngle1, cRFCoxaAngle1, cLRCoxaAngle1, cLFCoxaAngle1};
-
-#ifdef cRRInitCoxaAngle1    // We can set different angles for the legs than just where they servo horns are set...
-const short cCoxaInitAngle1[] PROGMEM = {
-  cRRInitCoxaAngle1, cRFInitCoxaAngle1, cLRInitCoxaAngle1, cLFInitCoxaAngle1};
-#endif
-
-
-//Start positions for the leg
-const short cInitPosX[] PROGMEM = {
-  cRRInitPosX, cRFInitPosX, cLRInitPosX, cLFInitPosX};
-const short cInitPosY[] PROGMEM = {
-  cRRInitPosY, cRFInitPosY, cLRInitPosY, cLFInitPosY};
-const short cInitPosZ[] PROGMEM = {
-  cRRInitPosZ, cRFInitPosZ, cLRInitPosZ, cLFInitPosZ};
 
 #endif
 
@@ -587,7 +359,7 @@ word            PrevServoMoveTime;    //Previous time for the servo updates
 INCONTROLSTATE   g_InControlState;      // This is our global Input control state object...
 
 // Define our ServoWriter class
-ServoDriver  g_ServoDriver;      // our global servo driver class
+//ServoDriver  g_ServoDriver;      // our global servo driver class
 
 boolean         g_fLowVoltageShutdown;    // If set the bot shuts down because the input voltage is to low
 word            Voltage;
@@ -661,36 +433,6 @@ PHOENIXGAIT APG[] = {
     {DEFAULT_GAIT_SPEED, 6, 2, 1, 2, 4, 1, {1, 4, 1, 4, 1, 4} GATENAME(s_szGN6)}          //Tripod 6 steps
 };    
 
-#elif defined(OCTOMODE)
-// Octopod Gaits
-
-//  Speed, Steps, Lifted, Front Down, Lifted Factor, Half Height, On Ground, 
-//                      { RR, RMR, RMF, RF, LR, LMR, LMF, LF}
-#ifdef DISPLAY_GAIT_NAMES
-extern "C" {
-  // Move the Gait Names to program space...
-  const char s_szGN1[] PROGMEM = "Tripod 6";
-};  
-#endif
-
-PHOENIXGAIT APG[] = { 
-    {DEFAULT_GAIT_SPEED, 6, 2, 1, 2, 4, 1, {1, 4, 1, 4, 4, 1, 4, 1} GATENAME(s_szGN1)}          //Tripod 6 steps
-};
-
-#else
-// Quad Gaits
-#ifdef DISPLAY_GAIT_NAMES
-extern "C" {
-  // Move the Gait Names to program space...
-  const char s_szGN1[] PROGMEM = "Ripple 12";
-  const char s_szGN2[] PROGMEM = "Tripod 8";
-}
-#endif
-PHOENIXGAIT APG[] = { 
-    {DEFAULT_GAIT_SPEED, 16, 3, 2, 2, 12, 3, 2250, 3600/16, 30, true, {5, 9, 1, 13} GATENAME(s_szGN1)},            // Wave 16
-    {1, 28, 3, 2, 2, 24, 3, 2250, 3600/28, 30, true, {8, 15, 1, 22} GATENAME(s_szGN2)}                             // Wave 28?
-};    
-
 #endif
 #endif
 //--------------------------------------------------------------------
@@ -741,7 +483,7 @@ void setup(){
   DBGSerial.begin(38400);
 #endif
   // Init our ServoDriver
-  g_ServoDriver.Init();
+  //g_ServoDriver.Init();
 
   //Checks to see if our Servo Driver support a GP Player
   //    DBGSerial.write("Program Start\n\r");
@@ -799,7 +541,7 @@ void setup(){
   g_InControlState.TurretTiltAngle1 = cTurretTiltInit;    // the tile for the turret
 #endif
 
-  g_InputController.Init();
+  //g_InputController.Init();
 
   // Servo Driver
   ServoMoveTime = 150;
@@ -839,56 +581,16 @@ bool loop(bool onlyDoCalculations = false)
   //Start time
   unsigned long lTimeWaitEnd;
   lTimerStart = millis(); 
-  DoBackgroundProcess();
   //Read input
-  CheckVoltage();        // check our voltages...
-  if (!g_fLowVoltageShutdown) {
-    //    DebugWrite(A0, HIGH);
-    g_InputController.ControlInput();
-    //    DebugWrite(A0, LOW);
-  }
-  WriteOutputs();        // Write Outputs
 
-#ifdef IsRobotUpsideDown
-    if (!fWalking){// dont do this while walking
-    g_fRobotUpsideDown = IsRobotUpsideDown;    // Grab the current state of the robot... 
-    if (g_fRobotUpsideDown != fRobotUpsideDownPrev) {
-      // Double check to make sure that it was not a one shot error
-      g_fRobotUpsideDown = IsRobotUpsideDown;    // Grab the current state of the robot... 
-      if (g_fRobotUpsideDown != fRobotUpsideDownPrev) {
-        fRobotUpsideDownPrev = g_fRobotUpsideDown;
-#ifdef DGBSerial        
-        DBGSerial.println(fRobotUpsideDownPrev, DEC);
-#endif        
-      }
-    }
-  }
-  //  DBGSerial.println(analogRead(0), DEC);
-#endif
-#ifdef OPT_WALK_UPSIDE_DOWN
-  if (g_fRobotUpsideDown){
-    g_InControlState.TravelLength.x = -g_InControlState.TravelLength.x;
-    g_InControlState.BodyPos.x = -g_InControlState.BodyPos.x;
-    g_InControlState.SLLeg.x = -g_InControlState.SLLeg.x;
-    g_InControlState.BodyRot1.z = -g_InControlState.BodyRot1.z;
-  }
-#endif
 
-#ifdef OPT_GPPLAYER
-    //GP Player
-  g_ServoDriver.GPPlayer();
-  if (g_ServoDriver.FIsGPSeqActive())
-    return true;  // go back to process the next message
-#endif
 
   //Single leg control
   SingleLegControl ();
-  DoBackgroundProcess();
 
   //Gait
   GaitSeq();
 
-  DoBackgroundProcess();
 
   //Balance calculations
   TotalTransX = 0;     //reset values used for calculation of balance
@@ -917,13 +619,11 @@ bool loop(bool onlyDoCalculations = false)
 #endif
     for (LegIndex = 0; LegIndex < (CNT_LEGS/2); LegIndex++) {    // balance calculations for all Right legs
 
-      DoBackgroundProcess();
       BalCalcOneLeg (-LegPosX[LegIndex]+GaitPosX[LegIndex], LegPosZ[LegIndex]+GaitPosZ[LegIndex], 
           (LegPosY[LegIndex]-(short)pgm_read_word(&cInitPosY[LegIndex]))+GaitPosY[LegIndex], LegIndex);
     }
 
     for (LegIndex = (CNT_LEGS/2); LegIndex < CNT_LEGS; LegIndex++) {    // balance calculations for all Right legs
-      DoBackgroundProcess();
       BalCalcOneLeg(LegPosX[LegIndex]+GaitPosX[LegIndex], LegPosZ[LegIndex]+GaitPosZ[LegIndex], 
           (LegPosY[LegIndex]-(short)pgm_read_word(&cInitPosY[LegIndex]))+GaitPosY[LegIndex], LegIndex);
     }
@@ -945,7 +645,6 @@ bool loop(bool onlyDoCalculations = false)
 #endif
 
   for (LegIndex = 0; LegIndex < (CNT_LEGS/2); LegIndex++) {    
-    DoBackgroundProcess();
     BodyFK(-LegPosX[LegIndex]+g_InControlState.BodyPos.x+GaitPosX[LegIndex] - TotalTransX,
     LegPosZ[LegIndex]+g_InControlState.BodyPos.z+GaitPosZ[LegIndex] - TotalTransZ,
     LegPosY[LegIndex]+g_InControlState.BodyPos.y+GaitPosY[LegIndex] - TotalTransY,
@@ -958,7 +657,6 @@ bool loop(bool onlyDoCalculations = false)
 
   //Do IK for all Left legs  
   for (LegIndex = (CNT_LEGS/2); LegIndex < CNT_LEGS; LegIndex++) {
-    DoBackgroundProcess();
     BodyFK(LegPosX[LegIndex]-g_InControlState.BodyPos.x+GaitPosX[LegIndex] - TotalTransX,
     LegPosZ[LegIndex]+g_InControlState.BodyPos.z+GaitPosZ[LegIndex] - TotalTransZ,
     LegPosY[LegIndex]+g_InControlState.BodyPos.y+GaitPosY[LegIndex] - TotalTransY,
@@ -967,13 +665,7 @@ bool loop(bool onlyDoCalculations = false)
     LegPosY[LegIndex]+g_InControlState.BodyPos.y-BodyFKPosY+GaitPosY[LegIndex] - TotalTransY,
     LegPosZ[LegIndex]+g_InControlState.BodyPos.z-BodyFKPosZ+GaitPosZ[LegIndex] - TotalTransZ, LegIndex);
   }
-#ifdef OPT_WALK_UPSIDE_DOWN
-  if (g_fRobotUpsideDown){ //Need to set them back for not messing with the SmoothControl
-    g_InControlState.BodyPos.x = -g_InControlState.BodyPos.x;
-    g_InControlState.SLLeg.x = -g_InControlState.SLLeg.x;
-    g_InControlState.BodyRot1.z = -g_InControlState.BodyRot1.z;
-  }
-#endif
+
   //Check mechanical limits
   CheckAngles();
 
@@ -987,11 +679,6 @@ bool loop(bool onlyDoCalculations = false)
   //Drive Servos
   if (g_InControlState.fRobotOn) {
     if (g_InControlState.fRobotOn && !g_InControlState.fPrev_RobotOn) {
-      MSound(3, 60, 2000, 80, 2250, 100, 2500);
-#ifdef USEXBEE
-      XBeePlaySounds(3, 60, 2000, 80, 2250, 100, 2500);
-#endif            
-
       Eyes = 1;
     }
 
@@ -1007,14 +694,6 @@ bool loop(bool onlyDoCalculations = false)
     else //Movement speed excl. Walking
     ServoMoveTime = 200 + g_InControlState.SpeedControl;
 
-    // note we broke up the servo driver into start/commit that way we can output all of the servo information
-    // before we wait and only have the termination information to output after the wait.  That way we hopefully
-    // be more accurate with our timings...
-    DoBackgroundProcess();
-    StartUpdateServos();
-
-    // See if we need to sync our processor with the servo driver while walking to ensure the prev is completed 
-    //before sending the next one
 
 
     // Finding any incident of GaitPos/Rot <>0:
@@ -1034,13 +713,6 @@ bool loop(bool onlyDoCalculations = false)
       //Get endtime and calculate wait time
       lTimeWaitEnd = lTimerStart + PrevServoMoveTime;
 
-      DebugWrite(A1, HIGH);
-      do {
-        // Wait the appropriate time, call any background process while waiting...
-        DoBackgroundProcess();
-      } 
-      while (millis() < lTimeWaitEnd);
-      DebugWrite(A1, LOW);
 #ifdef DEBUG_X
       if (g_fDebugOutput) {
 
@@ -1071,43 +743,12 @@ bool loop(bool onlyDoCalculations = false)
 #endif
     // Only do commit if we are actually doing something...
     DebugToggle(A2);
-    g_ServoDriver.CommitServoDriver(ServoMoveTime);
+   // g_ServoDriver.CommitServoDriver(ServoMoveTime);
 
 
   } 
   else {
     //Turn the bot off - May need to add ajust here...
-    if (g_InControlState.fPrev_RobotOn || (AllDown= 0)) {
-      ServoMoveTime = 600;
-      StartUpdateServos();
-      g_ServoDriver.CommitServoDriver(ServoMoveTime);
-      MSound(3, 100, 2500, 80, 2250, 60, 2000);
-#ifdef USEXBEE            
-      XBeePlaySounds(3, 100, 2500, 80, 2250, 60, 2000);
-#endif    
-      lTimeWaitEnd = millis() + 600;    // setup to process background stuff while we wait...
-      do {
-        // Wait the appropriate time, call any background process while waiting...
-        DoBackgroundProcess();
-      } 
-      while (millis() < lTimeWaitEnd);
-      //delay(600);
-    } 
-    else {
-      g_ServoDriver.FreeServos();
-      Eyes = 0;
-    }
-
-    // Allow the Servo driver to do stuff during our idle time
-    g_ServoDriver.IdleTime();
-
-    // We also have a simple debug monitor that allows us to 
-    // check things. call it here..
-#ifdef OPT_TERMINAL_MONITOR  
-    if (TerminalMonitor())
-      return true;           
-#endif
-    delay(20);  // give a pause between times we call if nothing is happening
   }
 
   PrevServoMoveTime = ServoMoveTime;
@@ -1122,108 +763,6 @@ bool loop(bool onlyDoCalculations = false)
 }
 
 
-void StartUpdateServos()
-{        
-  byte    LegIndex;
-
-  // First call off to the init...
-  g_ServoDriver.BeginServoUpdate();    // Start the update 
-
-    for (LegIndex = 0; LegIndex < CNT_LEGS; LegIndex++) {
-#ifdef c4DOF
-    g_ServoDriver.OutputServoInfoForLeg(LegIndex, 
-        cCoxaInv[LegIndex]? -CoxaAngle1[LegIndex] : CoxaAngle1[LegIndex], 
-        cFemurInv[LegIndex]? -FemurAngle1[LegIndex] : FemurAngle1[LegIndex], 
-        cTibiaInv[LegIndex]? -TibiaAngle1[LegIndex] : TibiaAngle1[LegIndex], 
-        cTarsInv[LegIndex]? -TarsAngle1[LegIndex]) : TarsAngle1[LegIndex]);
-#else
-    g_ServoDriver.OutputServoInfoForLeg(LegIndex, 
-        cCoxaInv[LegIndex]? -CoxaAngle1[LegIndex] : CoxaAngle1[LegIndex], 
-        cFemurInv[LegIndex]? -FemurAngle1[LegIndex] : FemurAngle1[LegIndex], 
-        cTibiaInv[LegIndex]? -TibiaAngle1[LegIndex] : TibiaAngle1[LegIndex]);
-#endif      
-  }
-#ifdef cTurretRotPin
-  g_ServoDriver.OutputServoInfoForTurret(g_InControlState.TurretRotAngle1, g_InControlState.TurretTiltAngle1);  // fist just see if it will talk
-#endif  
-}
-
-
-
-
-//--------------------------------------------------------------------
-//[WriteOutputs] Updates the state of the leds
-//--------------------------------------------------------------------
-void WriteOutputs(void)
-{
-#ifdef cEyesPin
-  digitalWrite(cEyesPin, Eyes);
-#endif        
-}
-//--------------------------------------------------------------------
-//[CHECK VOLTAGE]
-//Reads the input voltage and shuts down the bot when the power drops
-byte s_bLVBeepCnt;
-boolean CheckVoltage() {
-#ifdef cTurnOffVol
-  // Moved to Servo Driver - BUGBUG: Need to do when I merge back...
-  //    Voltage = analogRead(cVoltagePin); // Battery voltage 
-  //    Voltage = ((long)Voltage*1955)/1000;
-  Voltage = g_ServoDriver.GetBatteryVoltage();
-
-  // BUGBUG:: if voltage is 0 it failed to retrieve don't hang program...
-  //    if (!Voltage)
-  //      return;
-
-  if (!g_fLowVoltageShutdown) {
-    if ((Voltage < cTurnOffVol) || (Voltage >= 1999)) {
-      std::cout << "Voltage went low, turning off robot " << Voltage << "<" << cTurnOffVol << std::endl;
-#ifdef DBGSerial          
-      DBGSerial.print("Voltage went low, turn off robot ");
-      DBGSerial.println(Voltage, DEC);
-#endif            
-      //Turn off
-      g_InControlState.BodyPos.x = 0;
-      g_InControlState.BodyPos.y = 0;
-      g_InControlState.BodyPos.z = 0;
-      g_InControlState.BodyRot1.x = 0;
-      g_InControlState.BodyRot1.y = 0;
-      g_InControlState.BodyRot1.z = 0;
-      g_InControlState.TravelLength.x = 0;
-      g_InControlState.TravelLength.z = 0;
-
-#ifdef OPT_SINGLELEG
-      g_InControlState.TravelLength.y = 0;
-      g_InControlState.SelectedLeg = 255;
-#endif
-      g_fLowVoltageShutdown = 1;
-      s_bLVBeepCnt = 0;    // how many times we beeped...
-      g_InControlState.fRobotOn = false;
-    }
-#ifdef cTurnOnVol
-  } 
-  else if ((Voltage > cTurnOnVol) && (Voltage < 1999)) {
-#ifdef DBGSerial
-    DBGSerial.print(F("Voltage restored: "));
-    DBGSerial.println(Voltage, DEC);
-#endif          
-    g_fLowVoltageShutdown = 0;
-
-#endif      
-  } 
-  else {
-    if (s_bLVBeepCnt < 5) {
-      s_bLVBeepCnt++;
-#ifdef DBGSerial
-      DBGSerial.println(Voltage, DEC);
-#endif          
-      MSound( 1, 45, 2000);
-    }
-    delay(2000);
-  }
-#endif  
-  return g_fLowVoltageShutdown;
-}
 
 //--------------------------------------------------------------------
 //[SINGLE LEG CONTROL]
@@ -2237,420 +1776,6 @@ void AdjustLegPositionsToBodyHeight()
 #endif // CNT_HEX_INITS
 
 }
-
-// BUGBUG:: Move to some library...
-//==============================================================================
-//    SoundNoTimer - Quick and dirty tone function to try to output a frequency
-//            to a speaker for some simple sounds.
-//==============================================================================
-#ifdef SOUND_PIN
-void SoundNoTimer(unsigned long duration,  unsigned int frequency)
-{
-#ifndef KINETISK
-#ifdef __AVR__
-  volatile uint8_t *pin_port;
-  volatile uint8_t pin_mask;
-#else
-  volatile uint32_t *pin_port;
-  volatile uint16_t pin_mask;
-#endif
-  long toggle_count = 0;
-  long lusDelayPerHalfCycle;
-
-  // Set the pinMode as OUTPUT
-  pinMode(SOUND_PIN, OUTPUT);
-
-  pin_port = portOutputRegister(digitalPinToPort(SOUND_PIN));
-  pin_mask = digitalPinToBitMask(SOUND_PIN);
-
-  toggle_count = 2 * frequency * duration / 1000;
-  lusDelayPerHalfCycle = 1000000L/(frequency * 2);
-
-  // if we are using an 8 bit timer, scan through prescalars to find the best fit
-  while (toggle_count--) {
-    // toggle the pin
-    *pin_port ^= pin_mask;
-
-    // delay a half cycle
-    delayMicroseconds(lusDelayPerHalfCycle);
-  }    
-  *pin_port &= ~(pin_mask);  // keep pin low after stop
-#else
-// The tone command does sort of work, but does not play multiple sounds smoothly
-//  tone(SOUND_PIN, frequency, duration);  // Try the arduino library
-//  delay(duration);
-  // Try to get something working on DUE...
-  long toggle_count = 0;
-  long lusDelayPerHalfCycle;
-  boolean fHigh = false;
-  // Set the pinMode as OUTPUT
-  pinMode(SOUND_PIN, OUTPUT);
-  digitalWrite(SOUND_PIN, LOW);
-  toggle_count = 2 * frequency * duration / 1000;
-  lusDelayPerHalfCycle = 1000000L/(frequency * 2);
-
-  // if we are using an 8 bit timer, scan through prescalars to find the best fit
-  while (toggle_count--) {
-    // toggle the pin
-    fHigh  = !fHigh;
-    digitalWrite(SOUND_PIN, fHigh? LOW : HIGH);
-    // delay a half cycle
-    delayMicroseconds(lusDelayPerHalfCycle);
-  }    
-  digitalWrite(SOUND_PIN, LOW);
-
-#endif
-}
-
-void MSound(byte cNotes, ...)
-{
-  va_list ap;
-  unsigned int uDur;
-  unsigned int uFreq;
-  va_start(ap, cNotes);
-
-  while (cNotes > 0) {
-    uDur = va_arg(ap, unsigned int);
-    uFreq = va_arg(ap, unsigned int);
-    SoundNoTimer(uDur, uFreq);
-    cNotes--;
-  }
-  va_end(ap);
-}
-#else
-void MSound(byte cNotes, ...)
-{
-};
-#endif
-
-#ifdef OPT_TERMINAL_MONITOR
-#ifdef OPT_DUMP_EEPROM
-extern void DumpEEPROMCmd(byte *pszCmdLine);
-#endif
-#ifdef QUADMODE
-extern void UpdateGaitCmd(byte *pszCmdLine);
-#endif
-#ifdef OPT_DYNAMIC_ADJUST_LEGS
-extern void UpdateInitialPosAndAngCmd(byte *pszCmdLine);
-#endif
-
-//==============================================================================
-// TerminalMonitor - Simple background task checks to see if the user is asking
-//    us to do anything, like update debug levels ore the like.
-//==============================================================================
-boolean TerminalMonitor(void)
-{
-  byte szCmdLine[20];  // currently pretty simple command lines...
-  byte ich;
-  int ch;
-  // See if we need to output a prompt.
-  if (g_fShowDebugPrompt) {
-    DBGSerial.println(F("Arduino Phoenix Monitor"));
-    DBGSerial.println(F("D - Toggle debug on or off"));
-#ifdef OPT_DUMP_EEPROM
-    DBGSerial.println(F("E - Dump EEPROM"));
-#endif
-#ifdef QUADMODE
-//	DBGSerial.println(F("B <percent>"));
-    DBGSerial.println(F("G ST NL RR RF LR LF"));
-#endif
-#ifdef OPT_DYNAMIC_ADJUST_LEGS
-    DBGSerial.println(F("I pos ang"));
-#endif
-#ifdef OPT_TERMINAL_MONITOR_IC    // Allow the input controller to define stuff as well
-    g_InputController.ShowTerminalCommandList(); 
-#endif      
-
-    // Let the Servo driver show it's own set of commands...
-    g_ServoDriver.ShowTerminalCommandList();
-    g_fShowDebugPrompt = false;
-  }
-
-  // First check to see if there is any characters to process.
-  if ((ich = DBGSerial.available())) {
-    ich = 0;
-    // For now assume we receive a packet of data from serial monitor, as the user has
-    // to click the send button...
-    for (ich=0; ich < sizeof(szCmdLine); ich++) {
-      ch = DBGSerial.read();        // get the next character
-      if ((ch == -1) || ((ch >= 10) && (ch <= 15)))
-        break;
-      szCmdLine[ich] = ch;
-    }
-    szCmdLine[ich] = '\0';    // go ahead and null terminate it...
-    
-    // Remove any extra EOL characters that may have been added
-    for (;;) {
-      ch = DBGSerial.peek();
-      if ((ch >= 10) && (ch <= 15))
-        DBGSerial.read();
-      else
-        break;
-    }
-    if (ich) {
-    DBGSerial.print(F("Serial Cmd Line:"));        
-    DBGSerial.write(szCmdLine, ich);
-    DBGSerial.println(F("<eol>"));
-    }
-    // So see what are command is.
-    if (!ich)  {
-      g_fShowDebugPrompt = true;
-    } 
-    else if ((ich == 1) && ((szCmdLine[0] == 'd') || (szCmdLine[0] == 'D'))) {
-      g_fDebugOutput = !g_fDebugOutput;
-      if (g_fDebugOutput) 
-        DBGSerial.println(F("Debug is on"));
-      else
-        DBGSerial.println(F("Debug is off"));
-    } 
-#ifdef OPT_DUMP_EEPROM
-    else if (((szCmdLine[0] == 'e') || (szCmdLine[0] == 'E'))) {
-      DumpEEPROMCmd(szCmdLine);
-    } 
-#endif
-#ifdef QUADMODE
-    else if (((szCmdLine[0] == 'g') || (szCmdLine[0] == 'G'))) {
-      UpdateGaitCmd(szCmdLine);
-    } 
-#endif
-#ifdef OPT_DYNAMIC_ADJUST_LEGS
-    else if (((szCmdLine[0] == 'i') || (szCmdLine[0] == 'I'))) {
-      UpdateInitialPosAndAngCmd(szCmdLine);
-    } 
-#endif
-#ifdef OPT_TERMINAL_MONITOR_IC    // Allow the input controller to define stuff as well
-    else if (g_InputController.ProcessTerminalCommand(szCmdLine, ich)) 
-      ;  // See if the Input controller has added commands...
-#endif      
-
-    else
-    {
-      g_ServoDriver.ProcessTerminalCommand(szCmdLine, ich);
-    }
-
-    return true;
-  }
-  return false;
-}
-
-
-//--------------------------------------------------------------------
-// DumpEEPROM
-//--------------------------------------------------------------------
-#ifdef OPT_DUMP_EEPROM
-byte g_bEEPromDumpMode = 0;  // assume mode 0 - hex dump
-word g_wEEPromDumpStart = 0;  // where to start dumps from
-byte g_bEEPromDumpCnt = 16;  // how much to dump at a time
-
-void DumpEEPROM() {
-  byte i;
-  word wDumpCnt = g_bEEPromDumpCnt;
-
-  while (wDumpCnt) {
-    DBGSerial.print(g_wEEPromDumpStart, HEX);
-    DBGSerial.print(" - ");
-
-    // First in Hex
-    for (i = 0; (i < 16) && (i < wDumpCnt); i ++) {
-      byte b;
-      b = EEPROM.read(g_wEEPromDumpStart+i);
-      DBGSerial.print(b, HEX);
-      DBGSerial.print(" ");
-    }
-    // Next in Ascii
-    DBGSerial.print(" : ");
-    for (i = 0; (i < 16) && (i < wDumpCnt); i ++) {
-      byte b;
-      b = EEPROM.read(g_wEEPromDumpStart+i);
-      if ((b > 0x1f) && (b < 0x7f))
-        DBGSerial.write(b);
-      else
-        DBGSerial.print(".");
-    }
-    DBGSerial.println("");
-    g_wEEPromDumpStart += i;  // how many bytes we output
-    wDumpCnt -= i;            // How many more to go...
-  } 
-
-}
-#endif
-
-//--------------------------------------------------------------------
-// GetCmdLineNum - passed pointer to pointer so we can update...
-//--------------------------------------------------------------------
-long GetCmdLineNum(byte **ppszCmdLine) {
-  byte *psz = *ppszCmdLine;
-  long iVal = 0;
-  int iSign = 1;
-
-  // Ignore any blanks
-  while (*psz == ' ')
-    psz++;
-
-  // See if Hex value passed in
-  if ((*psz == '0') && ((*(psz+1) == 'x') || (*(psz+1) == 'X'))) {
-    // Hex mode
-    psz += 2;  // get over 0x
-    for (;;) {
-      if ((*psz >= '0') && (*psz <= '9'))
-        iVal = iVal * 16 + *psz++ - '0';
-      else if ((*psz >= 'a') && (*psz <= 'f'))
-        iVal = iVal * 16 + *psz++ - 'a' + 10;
-      else if ((*psz >= 'A') && (*psz <= 'F'))
-        iVal = iVal * 16 + *psz++ - 'A' + 10;
-      else
-        break;
-    }
-
-  }
-  else {
-    // decimal mode
-    if (*psz == '-') {
-        iSign = -1;
-        psz++;
-    }    
-        
-    while ((*psz >= '0') && (*psz <= '9'))
-      iVal = iVal * 10 + *psz++ - '0';
-  }
-  *ppszCmdLine = psz;    // update command line pointer
-  return iSign * iVal;
-
-}
-
-#ifdef OPT_DUMP_EEPROM
-//--------------------------------------------------------------------
-// DumpEEPROMCmd
-//--------------------------------------------------------------------
-void DumpEEPROMCmd(byte *pszCmdLine) {
-  // first byte can be H for hex or W for words...
-  if (!*++pszCmdLine)  // Need to get past the command letter first...
-    DumpEEPROM();
-  else if ((*pszCmdLine == 'h') || (*pszCmdLine == 'H')) 
-    g_bEEPromDumpMode = 0;
-  else if ((*pszCmdLine == 'w') || (*pszCmdLine == 'W')) 
-    g_bEEPromDumpMode = 0;
-
-  else {
-    // First argument should be the start location to dump
-    g_wEEPromDumpStart = GetCmdLineNum(&pszCmdLine);
-
-    // If the next byte is an "=" may try to do updates...
-    if (*pszCmdLine == '=') {
-      // make sure we don't get stuck in a loop...
-      byte *psz = pszCmdLine;
-      word w;
-      while (*psz) {
-        w = GetCmdLineNum(&psz);
-        if (psz == pszCmdLine)
-          break;  // not valid stuff so bail!
-        pszCmdLine = psz;  // remember how far we got...
-
-        EEPROM.write(g_wEEPromDumpStart++, w & 0xff);
-      }
-    }
-    else {
-      if (*pszCmdLine == ' ') { // A blank assume we have a count...
-        g_bEEPromDumpCnt = GetCmdLineNum(&pszCmdLine);
-      }
-    }
-    DumpEEPROM();
-  }
-}
-#endif
-
-#ifdef QUADMODE
-//--------------------------------------------------------------------
-// UpdateGaitCmd
-//--------------------------------------------------------------------
-void UpdateGaitCmd(byte *pszCmdLine) {
-  // If no other parameters, show current state
-  if (!*++pszCmdLine) {  // Need to get past the command letter first...
-    DBGSerial.print("St: ");
-    DBGSerial.print(g_InControlState.gaitCur.StepsInGait, DEC);
-    DBGSerial.print(" ");
-    DBGSerial.print(g_InControlState.gaitCur.NrLiftedPos, DEC);
-    DBGSerial.print(" ");
-    DBGSerial.print(g_InControlState.gaitCur.GaitLegNr[cRR], DEC);
-    DBGSerial.print(" ");
-    DBGSerial.print(g_InControlState.gaitCur.GaitLegNr[cRF], DEC);
-    DBGSerial.print(" ");
-    DBGSerial.print(g_InControlState.gaitCur.GaitLegNr[cLR], DEC);
-    DBGSerial.print(" ");
-    DBGSerial.println(g_InControlState.gaitCur.GaitLegNr[cLF], DEC);
-  }
-  else {
-    //Argument should be New percentage
-    word wStepsInGait = GetCmdLineNum(&pszCmdLine);
-    word wLifted = GetCmdLineNum(&pszCmdLine);
-    
-    // first pass only pass in number of steps and maybe Lifted pos
-    if (wStepsInGait) {
-        if (wLifted) {
-            // UPdated the lifted so lets update some of the gait properties
-            g_InControlState.gaitCur.NrLiftedPos = wLifted;
-            g_InControlState.gaitCur.FrontDownPos = (wLifted+1)/2;
-            g_InControlState.gaitCur.LiftDivFactor = (wLifted > 4)? 4 : 2;
-        }
-
-        // Assume the ordering of the gait legs here and equal spaced
-        g_InControlState.gaitCur.StepsInGait = wStepsInGait;
-        g_InControlState.gaitCur.TLDivFactor = g_InControlState.gaitCur.StepsInGait-g_InControlState.gaitCur.NrLiftedPos;
-            
-        // See if user did pass in leg positions...
-        g_InControlState.gaitCur.GaitLegNr[cRR] = GetCmdLineNum(&pszCmdLine);
-        if (g_InControlState.gaitCur.GaitLegNr[cRR]) {
-            g_InControlState.gaitCur.GaitLegNr[cRF] = GetCmdLineNum(&pszCmdLine);
-            g_InControlState.gaitCur.GaitLegNr[cLR] = GetCmdLineNum(&pszCmdLine);
-            g_InControlState.gaitCur.GaitLegNr[cLF] = GetCmdLineNum(&pszCmdLine);
-        }
-        else {
-            wStepsInGait /= 4;  // equal spacing.
-            g_InControlState.gaitCur.GaitLegNr[cRR] = wStepsInGait / 2;
-            g_InControlState.gaitCur.GaitLegNr[cRF] = g_InControlState.gaitCur.GaitLegNr[cRR] + wStepsInGait;
-            g_InControlState.gaitCur.GaitLegNr[cLR] = g_InControlState.gaitCur.GaitLegNr[cRF] + wStepsInGait;
-            g_InControlState.gaitCur.GaitLegNr[cLF] = g_InControlState.gaitCur.GaitLegNr[cLR] + wStepsInGait;
-        }
-    
-        //g_InControlState.gaitCur.HalfLiftHeight = 3;
-        //g_InControlState.gaitCur.NomGaitSpeed = DEFAULT_GAIT_SPEED;
-    }   
-  }
-}
-#endif //Quad Mode
-
-//--------------------------------------------------------------------
-// UpdateGaitCmd
-//--------------------------------------------------------------------
-#ifdef OPT_DYNAMIC_ADJUST_LEGS
-void UpdateInitialPosAndAngCmd(byte *pszCmdLine) {
-  // If no other parameters, show current state
-  if (!*++pszCmdLine) {  // Need to get past the command letter first...
-	DBGSerial.print("Len: ");
-	DBGSerial.print(GetLegsXZLength() , DEC);
-	DBGSerial.print(" Angs: ");
-    for(int LegIndex=0; LegIndex < CNT_LEGS; LegIndex++) {
-        DBGSerial.print(g_InControlState.aCoxaInitAngle1[LegIndex], DEC);
-        DBGSerial.print(" ");
-    }
-    DBGSerial.println();
-  }
-  else {
-	// Get the new leg positions
-    word wNewLegsXZPos = GetCmdLineNum(&pszCmdLine);
-    if (*pszCmdLine) {
-      int  iDeltaAngle = GetCmdLineNum(&pszCmdLine);
-      RotateLegInitAngles(iDeltaAngle);
-    }  
-    AdjustLegPositions(wNewLegsXZPos);
-
-  }
-}
-#endif
-
-#endif
-
-
 
 
 
